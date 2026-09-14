@@ -1,0 +1,63 @@
+{
+  "phase": 2,
+  "governance_note": "G1 respected: this prioritization applies to BUSINESS QUESTIONS only. No modeling target variable is selected, ranked, or proposed here.",
+  "selection_criteria": ["business_impact", "feasibility_with_data", "actionability"],
+  "overall_response_rate_pct": 11.27,
+  "questions": [
+    {
+      "id": "Q01", "selected": true, "script": "scripts/p2_q01_channel_conversion.py",
+      "question": "Which contact channel (cellular vs telephone) is associated with a higher term-deposit response rate?",
+      "scores": {"business_impact": 4, "feasibility": 5, "actionability": 5},
+      "justification": "Channel is directly controllable per contact; a large observed lift implies immediate, low-cost capacity reallocation."
+    },
+    {
+      "id": "Q02", "selected": true, "script": "scripts/p2_q02_economic_conditions.py",
+      "question": "How do macroeconomic conditions (euribor3m, employment) relate to the response rate?",
+      "scores": {"business_impact": 5, "feasibility": 5, "actionability": 4},
+      "justification": "Rate/employment environment shows the strongest monotonic association with demand; informs when to run and size waves."
+    },
+    {
+      "id": "Q03", "selected": true, "script": "scripts/p2_q03_customer_profile.py",
+      "question": "Which customer demographic segments respond best (age, job, marital, education)?",
+      "scores": {"business_impact": 4, "feasibility": 5, "actionability": 5},
+      "justification": "Segment propensities let the bank curate calling lists; several segments are 2-4x the base rate."
+    },
+    {
+      "id": "Q04", "selected": true, "script": "scripts/p2_q04_contact_history.py",
+      "question": "How does prior contact history (outcome, recency, prior contacts) relate to response?",
+      "scores": {"business_impact": 5, "feasibility": 4, "actionability": 4},
+      "justification": "Previously-contacted clients convert dramatically higher; large cold-only share is a clear opportunity (with leakage review)."
+    },
+    {
+      "id": "Q05", "selected": true, "script": "scripts/p2_q05_campaign_effort.py",
+      "question": "How does contact intensity (campaign attempts) relate to conversion and outbound effort?",
+      "scores": {"business_impact": 4, "feasibility": 5, "actionability": 5},
+      "justification": "Marginal conversion falls with attempts while effort rises; supports attempt caps and effort rebalancing."
+    },
+    {
+      "id": "Q06", "selected": false, "script": null,
+      "question": "What is the seasonality of response by month and day of week?",
+      "reason_not_selected": "Correlated with Q02 (month drives the macro indicators); folded into Q02 to avoid double-counting."
+    },
+    {
+      "id": "Q07", "selected": false, "script": null,
+      "question": "Do existing liabilities (housing, loan, default) affect response?",
+      "reason_not_selected": "Weak/ambiguous signal (default is near-constant, ~0.007% 'yes'); lower actionability and privacy sensitivity."
+    },
+    {
+      "id": "Q08", "selected": false, "script": null,
+      "question": "What is the cold vs returning-client mix / campaign saturation?",
+      "reason_not_selected": "Largely overlapping with Q04; retained as context but not a separate selected analysis."
+    },
+    {
+      "id": "Q09", "selected": false, "script": null,
+      "question": "How strongly does call duration track response (diagnostic)?",
+      "reason_not_selected": "duration is a leakage-flagged field; analyzed only for understanding, excluded from any actionable recommendation."
+    },
+    {
+      "id": "Q10", "selected": false, "script": null,
+      "question": "What is the expected effort (contacts) per acquisition under the current policy?",
+      "reason_not_selected": "Partly answered by Q05's contacts-per-subscriber metric; kept as a supporting KPI rather than a standalone selected question."
+    }
+  ]
+}

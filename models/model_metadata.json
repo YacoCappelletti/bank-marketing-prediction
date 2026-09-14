@@ -1,0 +1,113 @@
+{
+  "model_name": "GradientBoostingClassifier",
+  "model_version": "1.0.0",
+  "approved_target": "y",
+  "problem_type": "binary_classification",
+  "target_approval_reference": {
+    "path": "docs/json/target_approval.json",
+    "approval_status": "approved",
+    "approval_timestamp": "2026-09-13T19:22:25+00:00"
+  },
+  "training_timestamp": "2026-09-13T19:32:48+00:00",
+  "random_seed": 42,
+  "feature_columns": [
+    "age",
+    "job",
+    "marital",
+    "education",
+    "default",
+    "housing",
+    "loan",
+    "contact",
+    "month",
+    "day_of_week",
+    "pdays",
+    "previous",
+    "emp.var.rate",
+    "cons.price.idx",
+    "cons.conf.idx",
+    "euribor3m",
+    "nr.employed",
+    "previously_contacted",
+    "pdays_days"
+  ],
+  "excluded_features": [
+    "duration",
+    "poutcome",
+    "campaign"
+  ],
+  "feature_types": {
+    "numeric": [
+      "age",
+      "pdays_days",
+      "previous",
+      "emp.var.rate",
+      "cons.price.idx",
+      "cons.conf.idx",
+      "euribor3m",
+      "nr.employed"
+    ],
+    "categorical": [
+      "job",
+      "marital",
+      "education",
+      "default",
+      "housing",
+      "loan",
+      "contact",
+      "month",
+      "day_of_week",
+      "pdays",
+      "previously_contacted"
+    ]
+  },
+  "preprocessing_summary": "Median impute + StandardScaler (numeric); most-frequent impute + one-hot, handle_unknown=ignore (categorical). Fit on TRAIN only. pdays 999 sentinel -> previously_contacted flag + pdays_days; age clipped [18,95].",
+  "split_strategy": "Stratified 70/15/15 on the target, seed 42. Justification: no row-level chronological field exists (only cyclic month/day-of-week), so a stratified split preserves class balance; see model_report.md.",
+  "split_sizes": {
+    "train": 28823,
+    "validation": 6176,
+    "test": 6177
+  },
+  "chosen_decision_threshold": 0.31,
+  "threshold_selection": "validation-only minimization of expected cost (G6)",
+  "cost_matrix": {
+    "false_negative_cost": 20,
+    "false_positive_cost": 1
+  },
+  "validation_metrics": {
+    "roc_auc": 0.797,
+    "pr_auc_average_precision": 0.4662,
+    "accuracy": 0.5609,
+    "recall": 0.8405,
+    "precision": 0.1836
+  },
+  "test_metrics": {
+    "roc_auc": 0.8194,
+    "pr_auc_average_precision": 0.4753,
+    "brier_score": 0.1515,
+    "accuracy": 0.564,
+    "precision": 0.1875,
+    "recall": 0.8606,
+    "f1": 0.3079,
+    "confusion_matrix": {
+      "tn": 2885,
+      "fp": 2596,
+      "fn": 97,
+      "tp": 599
+    },
+    "expected_cost_per_client": 0.7343
+  },
+  "library_versions": {
+    "python": "3.13.11",
+    "pandas": "3.0.0",
+    "numpy": "2.4.2",
+    "scikit_learn": "1.9.0",
+    "shap": "0.52.0"
+  },
+  "notes_limitations": [
+    "Term-deposit response model for the historical (2008-2010) campaign context.",
+    "duration/poutcome/campaign excluded per user-approved feature policy.",
+    "Class imbalance handled via balanced weights; PR-AUC primary metric.",
+    "Macro-indicator drift may limit transfer to future economic regimes."
+  ]
+}

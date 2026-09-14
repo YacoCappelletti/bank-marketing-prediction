@@ -1,0 +1,157 @@
+{
+  "model_version": "1.0.0",
+  "decision_threshold": 0.31,
+  "examples": {
+    "low_propensity_example": {
+      "method": "POST",
+      "endpoint": "/v1/predict",
+      "request": {
+        "age": 34,
+        "job": "technician",
+        "marital": "single",
+        "education": "university.degree",
+        "default": "no",
+        "housing": "yes",
+        "loan": "no",
+        "contact": "telephone",
+        "month": "may",
+        "day_of_week": "thu",
+        "pdays": 999,
+        "previous": 0,
+        "emp.var.rate": 1.1,
+        "cons.price.idx": 93.994,
+        "cons.conf.idx": -36.4,
+        "euribor3m": 4.857,
+        "nr.employed": 5191.0
+      },
+      "response_status": 200,
+      "response": {
+        "prediction": 0,
+        "predicted_class": "no",
+        "probability": 0.186925,
+        "decision_threshold": 0.31,
+        "risk_band": "low",
+        "recommendation": "Deprioritize for active outreach this wave; no personalized push. Candidate for self-serve/digital channels only.",
+        "contributing_factors": [
+          {
+            "feature": "num__nr.employed",
+            "original_field": "nr.employed",
+            "contribution": -0.47153
+          },
+          {
+            "feature": "num__euribor3m",
+            "original_field": "euribor3m",
+            "contribution": -0.28551
+          },
+          {
+            "feature": "cat__contact_telephone",
+            "original_field": "contact",
+            "contribution": -0.25767
+          },
+          {
+            "feature": "num__cons.conf.idx",
+            "original_field": "cons.conf.idx",
+            "contribution": -0.12129
+          },
+          {
+            "feature": "num__cons.price.idx",
+            "original_field": "cons.price.idx",
+            "contribution": -0.09419
+          }
+        ],
+        "model_version": "1.0.0",
+        "model_name": "GradientBoostingClassifier",
+        "target": "y",
+        "timestamp": "2026-09-13T19:41:00.773095Z"
+      }
+    },
+    "high_propensity_example": {
+      "method": "POST",
+      "endpoint": "/v1/predict",
+      "request": {
+        "age": 67,
+        "job": "retired",
+        "marital": "married",
+        "education": "university.degree",
+        "default": "no",
+        "housing": "no",
+        "loan": "no",
+        "contact": "cellular",
+        "month": "mar",
+        "day_of_week": "mon",
+        "pdays": 3,
+        "previous": 2,
+        "emp.var.rate": -1.8,
+        "cons.price.idx": 92.201,
+        "cons.conf.idx": -26.9,
+        "euribor3m": 0.75,
+        "nr.employed": 4963.6
+      },
+      "response_status": 200,
+      "response": {
+        "prediction": 1,
+        "predicted_class": "yes",
+        "probability": 0.93052,
+        "decision_threshold": 0.31,
+        "risk_band": "high",
+        "recommendation": "Priority outreach: assign best agents / cellular, personalized offer, contact within favorable macro window.",
+        "contributing_factors": [
+          {
+            "feature": "num__nr.employed",
+            "original_field": "nr.employed",
+            "contribution": 1.06629
+          },
+          {
+            "feature": "num__pdays_days",
+            "original_field": "pdays_days",
+            "contribution": 0.57497
+          },
+          {
+            "feature": "cat__previously_contacted_yes",
+            "original_field": "previously_contacted",
+            "contribution": 0.38573
+          },
+          {
+            "feature": "cat__day_of_week_mon",
+            "original_field": "day_of_week",
+            "contribution": -0.24114
+          },
+          {
+            "feature": "cat__month_mar",
+            "original_field": "month",
+            "contribution": 0.24058
+          }
+        ],
+        "model_version": "1.0.0",
+        "model_name": "GradientBoostingClassifier",
+        "target": "y",
+        "timestamp": "2026-09-13T19:41:00.812695Z"
+      }
+    }
+  },
+  "validation_examples": {
+    "invalid_category": {
+      "request_patch": {
+        "job": "astronaut"
+      },
+      "status": 422,
+      "detail": "literal_error: job must be one of the known categories"
+    },
+    "missing_field": {
+      "request_patch": {
+        "__remove__": "age"
+      },
+      "status": 422,
+      "detail": "field required"
+    }
+  },
+  "health_example": {
+    "method": "GET",
+    "endpoint": "/health",
+    "response": {
+      "status": "ok",
+      "model_loaded": true,
+      "model_version": "1.0.0"
+    }
+  }
+}

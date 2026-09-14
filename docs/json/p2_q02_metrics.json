@@ -1,0 +1,44 @@
+{
+  "question": "How do macroeconomic conditions (euribor3m, employment rate) relate to the term-deposit response rate?",
+  "title": "Economic conditions and demand",
+  "overall_response_rate": 11.27,
+  "response_by_euribor_band": [
+    {
+      "band": "0-1.5",
+      "contacts": 13216,
+      "subscribers": 3175,
+      "response_rate_pct": 24.02
+    },
+    {
+      "band": "1.5-2.5",
+      "contacts": 282,
+      "subscribers": 126,
+      "response_rate_pct": 44.68
+    },
+    {
+      "band": "2.5-3.5",
+      "contacts": 5,
+      "subscribers": 1,
+      "response_rate_pct": 20.0
+    },
+    {
+      "band": "3.5-4.5",
+      "contacts": 3598,
+      "subscribers": 181,
+      "response_rate_pct": 5.03
+    },
+    {
+      "band": "4.5-5.1",
+      "contacts": 24087,
+      "subscribers": 1157,
+      "response_rate_pct": 4.8
+    }
+  ],
+  "point_biserial_correlation_with_response": {
+    "euribor3m": -0.308,
+    "emp.var.rate": -0.298,
+    "nr.employed": -0.355,
+    "cons.conf.idx": 0.055
+  },
+  "note": "Descriptive association only; correlation is a summary statistic, not a model."
+}

@@ -1,0 +1,204 @@
+{
+  "question": "Which customer demographic segments (age band, job, marital status, education) are associated with the highest term-deposit response rate?",
+  "title": "Customer profile segments",
+  "overall_response_rate": 11.27,
+  "response_by_age_band": [
+    {
+      "segment": "<25",
+      "contacts": 1666,
+      "subscribers": 349,
+      "response_rate_pct": 20.95
+    },
+    {
+      "segment": "25-34",
+      "contacts": 14847,
+      "subscribers": 1740,
+      "response_rate_pct": 11.72
+    },
+    {
+      "segment": "35-44",
+      "contacts": 12844,
+      "subscribers": 1093,
+      "response_rate_pct": 8.51
+    },
+    {
+      "segment": "45-54",
+      "contacts": 8249,
+      "subscribers": 717,
+      "response_rate_pct": 8.69
+    },
+    {
+      "segment": "55-64",
+      "contacts": 2963,
+      "subscribers": 451,
+      "response_rate_pct": 15.22
+    },
+    {
+      "segment": "65+",
+      "contacts": 619,
+      "subscribers": 290,
+      "response_rate_pct": 46.85
+    }
+  ],
+  "response_by_job": [
+    {
+      "segment": "student",
+      "contacts": 875,
+      "subscribers": 275,
+      "response_rate_pct": 31.43
+    },
+    {
+      "segment": "retired",
+      "contacts": 1720,
+      "subscribers": 434,
+      "response_rate_pct": 25.23
+    },
+    {
+      "segment": "unemployed",
+      "contacts": 1014,
+      "subscribers": 144,
+      "response_rate_pct": 14.2
+    },
+    {
+      "segment": "admin.",
+      "contacts": 10422,
+      "subscribers": 1352,
+      "response_rate_pct": 12.97
+    },
+    {
+      "segment": "management",
+      "contacts": 2924,
+      "subscribers": 328,
+      "response_rate_pct": 11.22
+    },
+    {
+      "segment": "unknown",
+      "contacts": 330,
+      "subscribers": 37,
+      "response_rate_pct": 11.21
+    },
+    {
+      "segment": "technician",
+      "contacts": 6743,
+      "subscribers": 730,
+      "response_rate_pct": 10.83
+    },
+    {
+      "segment": "self-employed",
+      "contacts": 1421,
+      "subscribers": 149,
+      "response_rate_pct": 10.49
+    },
+    {
+      "segment": "housemaid",
+      "contacts": 1060,
+      "subscribers": 106,
+      "response_rate_pct": 10.0
+    },
+    {
+      "segment": "entrepreneur",
+      "contacts": 1456,
+      "subscribers": 124,
+      "response_rate_pct": 8.52
+    },
+    {
+      "segment": "services",
+      "contacts": 3969,
+      "subscribers": 323,
+      "response_rate_pct": 8.14
+    },
+    {
+      "segment": "blue-collar",
+      "contacts": 9254,
+      "subscribers": 638,
+      "response_rate_pct": 6.89
+    }
+  ],
+  "response_by_marital": [
+    {
+      "segment": "divorced",
+      "contacts": 4612,
+      "subscribers": 476,
+      "response_rate_pct": 10.32
+    },
+    {
+      "segment": "married",
+      "contacts": 24928,
+      "subscribers": 2532,
+      "response_rate_pct": 10.16
+    },
+    {
+      "segment": "single",
+      "contacts": 11568,
+      "subscribers": 1620,
+      "response_rate_pct": 14.0
+    },
+    {
+      "segment": "unknown",
+      "contacts": 80,
+      "subscribers": 12,
+      "response_rate_pct": 15.0
+    }
+  ],
+  "response_by_education": [
+    {
+      "segment": "basic.4y",
+      "contacts": 4176,
+      "subscribers": 428,
+      "response_rate_pct": 10.25
+    },
+    {
+      "segment": "basic.6y",
+      "contacts": 2292,
+      "subscribers": 188,
+      "response_rate_pct": 8.2
+    },
+    {
+      "segment": "basic.9y",
+      "contacts": 6045,
+      "subscribers": 473,
+      "response_rate_pct": 7.82
+    },
+    {
+      "segment": "high.school",
+      "contacts": 9515,
+      "subscribers": 1031,
+      "response_rate_pct": 10.84
+    },
+    {
+      "segment": "illiterate",
+      "contacts": 18,
+      "subscribers": 4,
+      "response_rate_pct": 22.22
+    },
+    {
+      "segment": "professional.course",
+      "contacts": 5243,
+      "subscribers": 595,
+      "response_rate_pct": 11.35
+    },
+    {
+      "segment": "university.degree",
+      "contacts": 12168,
+      "subscribers": 1670,
+      "response_rate_pct": 13.72
+    },
+    {
+      "segment": "unknown",
+      "contacts": 1731,
+      "subscribers": 251,
+      "response_rate_pct": 14.5
+    }
+  ],
+  "best_job": {
+    "segment": "student",
+    "response_rate_pct": 31.43
+  },
+  "age_bands_above_average": [
+    "<25",
+    "25-34",
+    "55-64",
+    "65+"
+  ],
+  "note": "Descriptive segment rates; no model trained."
+}

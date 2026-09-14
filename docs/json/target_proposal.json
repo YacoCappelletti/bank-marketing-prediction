@@ -1,0 +1,56 @@
+{
+  "recommended_target": "y",
+  "alternative_targets": [
+    "campaign (regression - effort planning)",
+    "previous (regression - weak, 86.5% zeros)",
+    "duration (rejected: post-call leakage proxy, low business value as a standalone target)"
+  ],
+  "problem_type": "binary_classification",
+  "business_justification": "Phase 2 (insights.json) shows response rate varying from ~4.8% to ~65% across the macro window, prior-contact history, segment, and channel. A per-client binary propensity for subscribing is the score that directly drives every recommended action (prioritize warm/high segments, cap low-propensity attempts, favor cellular, time waves). It is the analytic follow-on the business report called for and maps to the operational bands in configs/business_rules.json.",
+  "technical_justification": "Clean two-level label (no missing, no 'unknown'), strong learned signal available from non-leaky features (euribor3m, emp.var.rate, nr.employed, contact, pdays/previous, job, age). Imbalanced (11.3% positive) but well within standard handling (class weights, PR-AUC). Supports the Phase 4 candidate set and a probability-graded threshold tuned against the Phase 2 cost matrix (FN:FP = 20:1).",
+  "data_quality_justification": "y has 0 missing values and 2 consistent categories ('yes'/'no'); the only quality consideration is class imbalance (minority 11.27%), which is explicitly handled in Phase 4 per model_config imbalance policy.",
+  "data_dictionary_evidence": "data_dictionary.json: y is the sole column flagged candidate_target_phase3='yes' (factual flag, semantic_type=binary, usable_as_feature='no' since it is the outcome). duration and poutcome are flagged potential_data_leakage='yes'.",
+  "data_quality_evidence": "data_quality_report.md Section 7: y balance 36,548 no / 4,640 yes (minority 11.27%); Section 3: 12 exact duplicate rows to drop pre-split; Section 5: pdays 999 sentinel and age=17 outlier to handle in preprocessing.",
+  "business_analysis_evidence": "insights.json cross_insight_summary: value is re-allocating calling budget toward higher-probability contacts; requires a single per-client response propensity score. Q04 warm/cold gap (63.8% vs 9.3%) and Q02 macro gap (4.8% vs 44.7%) confirm separability.",
+  "availability_at_prediction_time": "y is the future outcome; the model scores a client BEFORE the call, so all inputs are available at decision time provided duration is excluded and poutcome recency is confirmed available. This is the recommended operating assumption.",
+  "assumptions": [
+    "The bank can obtain the client and macro features before the campaign call (decision-time availability).",
+    "poutcome/previous refer to PRIOR campaigns and are available before this campaign's contact; if not, they will be dropped in Phase 4.",
+    "No per-unit revenue/cost data exists; the 20:1 cost ratio from business_rules.json is a documented assumption."
+  ],
+  "risks": [
+    "Class imbalance (11.3%) can inflate accuracy; use PR-AUC and threshold tuning, not accuracy alone.",
+    "duration leakage (corr=0.405 with y) would produce an unrealistically strong but useless model if included.",
+    "poutcome='success' is a strong but leakage-flagged signal (corr=0.316 with y); availability must be verified.",
+    "Macroeconomic features can drift; a model trained on 2008-2010 conditions may not transfer to other regimes."
+  ],
+  "limitations": [
+    "Predicts response to THIS product (term deposit) in THIS historical context; not a general propensity model.",
+    "Cold leads dominate (96.3%), so absolute positive counts in the high band are limited."
+  ],
+  "data_leakage_checks": [
+    {
+      "column": "duration",
+      "flag": "EXCLUDE",
+      "reason": "post-call field, corr=0.405 with y"
+    },
+    {
+      "column": "poutcome",
+      "flag": "REVIEW",
+      "reason": "prior success strongly predicts current y (corr=0.316); confirm available at decision time, else drop"
+    },
+    {
+      "column": "campaign",
+      "flag": "REVIEW",
+      "reason": "counts may include the current attempt; verify it excludes the outcome call"
+    },
+    {
+      "column": "pdays",
+      "flag": "RECODE",
+      "reason": "999 sentinel -> previously_contacted flag + days"
+    }
+  ],
+  "problem_type_rationale": "Binary classification over regression: the business wants a decision (contact or not / priority tier), which maps to a probability and threshold, matching the Phase 2 band structure and cost matrix. A regression on duration/campaign would not produce a directly actionable propensity ranking.",
+  "approval_status": "pending_user_approval",
+  "governance_note": "Target proposed per G2 using the three mandatory inputs. Awaiting explicit user approval (G3). No model trained (G4 blocks Phase 4 until approved)."
+}

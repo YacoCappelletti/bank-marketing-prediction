@@ -1,0 +1,29 @@
+{
+  "project_name": "bank-marketing-prediction",
+  "description": "End-to-end analytical project on the Bank Marketing dataset.",
+  "language": "en",
+  "dataset": {
+    "raw_path": "data/raw/bank_data.csv",
+    "processed_dir": "data/processed",
+    "external_dir": "data/external",
+    "separator": ";",
+    "has_header": true,
+    "source_reference": "UCI Machine Learning Repository - Bank Marketing (bank-additional-full), Moro, Cortez, Silva (2014)",
+    "target_column": "y",
+    "target_column_note": "Approved in Phase 3 by the user (see docs/json/target_approval.json, approval_status=approved, 2026-09-13). Populated only after G3 approval."
+  },
+  "paths": {
+    "docs_dir": "docs",
+    "docs_json_dir": "docs/json",
+    "docs_images_dir": "docs/images",
+    "docs_snippets_dir": "docs/snippets",
+    "scripts_dir": "scripts",
+    "models_dir": "models",
+    "configs_dir": "configs",
+    "tests_dir": "tests"
+  },
+  "environment": {
+    "name": "local",
+    "random_seed_default": 42
+  }
+}

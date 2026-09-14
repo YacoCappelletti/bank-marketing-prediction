@@ -1,0 +1,102 @@
+{
+  "method": "permutation_importance",
+  "scoring": "average_precision",
+  "split": "validation",
+  "features": [
+    {
+      "feature": "cat__job_student",
+      "importance_mean": 0.13816,
+      "importance_std": 0.00739
+    },
+    {
+      "feature": "cat__job_services",
+      "importance_mean": 0.04403,
+      "importance_std": 0.0043
+    },
+    {
+      "feature": "cat__job_technician",
+      "importance_mean": 0.02947,
+      "importance_std": 0.00448
+    },
+    {
+      "feature": "num__nr.employed",
+      "importance_mean": 0.01922,
+      "importance_std": 0.00595
+    },
+    {
+      "feature": "cat__job_admin.",
+      "importance_mean": 0.01547,
+      "importance_std": 0.00221
+    },
+    {
+      "feature": "cat__job_unemployed",
+      "importance_mean": 0.01369,
+      "importance_std": 0.00256
+    },
+    {
+      "feature": "cat__job_blue-collar",
+      "importance_mean": 0.01018,
+      "importance_std": 0.00289
+    },
+    {
+      "feature": "cat__job_retired",
+      "importance_mean": 0.00514,
+      "importance_std": 0.00219
+    },
+    {
+      "feature": "cat__job_housemaid",
+      "importance_mean": 0.00495,
+      "importance_std": 0.00187
+    },
+    {
+      "feature": "cat__job_self-employed",
+      "importance_mean": 0.00454,
+      "importance_std": 0.00182
+    },
+    {
+      "feature": "num__cons.price.idx",
+      "importance_mean": 0.00315,
+      "importance_std": 0.00128
+    },
+    {
+      "feature": "num__emp.var.rate",
+      "importance_mean": 0.00281,
+      "importance_std": 0.00122
+    },
+    {
+      "feature": "num__pdays_days",
+      "importance_mean": 0.00263,
+      "importance_std": 0.00196
+    },
+    {
+      "feature": "cat__job_management",
+      "importance_mean": 0.0015,
+      "importance_std": 0.00121
+    },
+    {
+      "feature": "num__euribor3m",
+      "importance_mean": 0.00073,
+      "importance_std": 0.00087
+    },
+    {
+      "feature": "num__age",
+      "importance_mean": 0.00019,
+      "importance_std": 0.00257
+    },
+    {
+      "feature": "num__previous",
+      "importance_mean": -0.00051,
+      "importance_std": 0.00071
+    },
+    {
+      "feature": "num__cons.conf.idx",
+      "importance_mean": -0.00178,
+      "importance_std": 0.00119
+    },
+    {
+      "feature": "cat__job_entrepreneur",
+      "importance_mean": -0.00648,
+      "importance_std": 0.0005
+    }
+  ]
+}

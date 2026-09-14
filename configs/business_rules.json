@@ -1,0 +1,46 @@
+{
+  "source": "Phase 2 insights (p2_q01, p2_q02, p2_q03, p2_q04, p2_q05)",
+  "status": "active",
+  "target_approved": true,
+  "approved_target": "y",
+  "governance_note": "Target approved by the user in Phase 3 (docs/json/target_approval.json, 2026-09-13). Bands are keyed to the per-client P(y=yes) probability; the final decision threshold is tuned on validation in Phase 4 against the cost matrix below. Consumed in Phases 4 and 5.",
+  "problem_type": "classification",
+  "target_dependency": "Interpretation of `probability` assumes the Phase 3 approved target is the binary term-deposit response. If a different target is approved, these bands must be re-derived.",
+  "base_rate_pct": 11.27,
+  "risk_bands": [
+    {
+      "band": "low",
+      "min_probability": 0.0,
+      "max_probability": 0.20,
+      "recommendation": "Deprioritize for active outreach this wave; no personalized push. Candidate for self-serve/digital channels only.",
+      "justification": "Below ~1.8x the 11.27% base rate; contacting these consumes the low-yield repeat-dialing effort flagged in Q05 (5.5% conversion at 6+ attempts)."
+    },
+    {
+      "band": "medium",
+      "min_probability": 0.20,
+      "max_probability": 0.50,
+      "recommendation": "Include in the standard cellular campaign with up to two attempts.",
+      "justification": "Roughly the high-segment band from Q03 (students 31%, retirees 25%, cellular 14.7%); worth contacting via the preferred channel (Q01) but not premium capacity."
+    },
+    {
+      "band": "high",
+      "min_probability": 0.50,
+      "max_probability": 1.0,
+      "recommendation": "Priority outreach: assign best agents / cellular, personalized offer, contact within favorable macro window.",
+      "justification": "Matches the warm-history (Q04: previously-contacted 63.8%, poutcome success 65.1%) and low-rate-window (Q02: 24-45%) conversions; these are the clients a missed contact most harms."
+    }
+  ],
+  "cost_matrix": {
+    "false_negative_cost": 20,
+    "false_positive_cost": 1,
+    "assumption_note": "No per-unit revenue/agent-cost figures exist in the dataset. Ratio is an explicit assumption grounded in Phase 2: it currently takes ~22.8 contacts to acquire one subscriber (Q05), so the value of a single subscriber (a funded term deposit) is treated as far greater than the marginal cost of one additional outbound attempt. The 20:1 ratio prioritizes recall (not missing would-be subscribers) and drives a lower decision threshold in Phase 4. To be revisited if the business supplies real unit economics.",
+    "units": "arbitrary relative cost units",
+    "derived_from": ["p2_q05 contacts_per_subscriber=22.79", "overall_response_rate=11.27%"]
+  },
+  "operating_principles": [
+    "Favor cellular over telephone for equal-propensity clients (Q01).",
+    "Weight campaigns toward favorable macro windows (Q02).",
+    "Always work warm/previously-contacted leads first (Q04).",
+    "Cap attempts on low-propensity clients to avoid effort waste (Q05)."
+  ]
+}

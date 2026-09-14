@@ -1,0 +1,11 @@
+{
+  "include": ["src", "scripts", "apps", "tests"],
+  "exclude": ["**/__pycache__", ".venv", "docs", "models", "data"],
+  "typeCheckingMode": "off",
+  "reportMissingImports": "warning",
+  "reportMissingModuleSource": "none",
+  "extraPaths": [".", "scripts"],
+  "defineConstant": {
+    "DEBUG": true
+  }
+}

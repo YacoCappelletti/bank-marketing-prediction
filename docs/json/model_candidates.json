@@ -1,0 +1,76 @@
+{
+  "approved_target": "y",
+  "approval_timestamp": "2026-09-13T19:22:25+00:00",
+  "problem_type": "binary_classification",
+  "seed": 42,
+  "cv_folds": 5,
+  "cost_matrix": {
+    "false_negative_cost": 20,
+    "false_positive_cost": 1
+  },
+  "primary_metric": "val_pr_auc_average_precision",
+  "results": [
+    {
+      "model": "GradientBoostingClassifier",
+      "cv_average_precision_mean": 0.4524,
+      "cv_average_precision_std": 0.0168,
+      "val_roc_auc": 0.797,
+      "val_pr_auc": 0.4662,
+      "val_optimal_threshold": 0.31,
+      "val_expected_cost_at_threshold": 0.7806,
+      "val_recall_at_threshold": 0.8405,
+      "val_precision_at_threshold": 0.1836
+    },
+    {
+      "model": "RandomForestClassifier",
+      "cv_average_precision_mean": 0.4562,
+      "cv_average_precision_std": 0.017,
+      "val_roc_auc": 0.7968,
+      "val_pr_auc": 0.4628,
+      "val_optimal_threshold": 0.32,
+      "val_expected_cost_at_threshold": 0.7898,
+      "val_recall_at_threshold": 0.796,
+      "val_precision_at_threshold": 0.2137
+    },
+    {
+      "model": "DecisionTreeClassifier",
+      "cv_average_precision_mean": 0.4355,
+      "cv_average_precision_std": 0.0173,
+      "val_roc_auc": 0.7881,
+      "val_pr_auc": 0.4487,
+      "val_optimal_threshold": 0.26,
+      "val_expected_cost_at_threshold": 0.7934,
+      "val_recall_at_threshold": 0.8865,
+      "val_precision_at_threshold": 0.1567
+    },
+    {
+      "model": "LogisticRegression",
+      "cv_average_precision_mean": 0.4423,
+      "cv_average_precision_std": 0.0172,
+      "val_roc_auc": 0.7913,
+      "val_pr_auc": 0.427,
+      "val_optimal_threshold": 0.31,
+      "val_expected_cost_at_threshold": 0.7874,
+      "val_recall_at_threshold": 0.8563,
+      "val_precision_at_threshold": 0.1723
+    }
+  ],
+  "selected_model": "GradientBoostingClassifier",
+  "selected_validation": {
+    "model": "GradientBoostingClassifier",
+    "cv_average_precision_mean": 0.4524,
+    "cv_average_precision_std": 0.0168,
+    "val_roc_auc": 0.797,
+    "val_pr_auc": 0.4662,
+    "val_optimal_threshold": 0.31,
+    "val_expected_cost_at_threshold": 0.7806,
+    "val_recall_at_threshold": 0.8405,
+    "val_precision_at_threshold": 0.1836
+  },
+  "excluded_features": [
+    "duration",
+    "poutcome",
+    "campaign"
+  ],
+  "note": "Threshold selected on validation only (G6). Test evaluation happens once in p4_evaluate_final_model.py."
+}

@@ -1,0 +1,50 @@
+{
+  "model": "GradientBoostingClassifier",
+  "threshold": 0.31,
+  "cost_matrix": {
+    "false_negative_cost": 20,
+    "false_positive_cost": 1
+  },
+  "test": {
+    "roc_auc": 0.8194,
+    "pr_auc_average_precision": 0.4753,
+    "brier_score": 0.1515,
+    "accuracy": 0.564,
+    "precision": 0.1875,
+    "recall": 0.8606,
+    "f1": 0.3079,
+    "confusion_matrix": {
+      "tn": 2885,
+      "fp": 2596,
+      "fn": 97,
+      "tp": 599
+    },
+    "expected_cost_per_client": 0.7343
+  },
+  "validation": {
+    "roc_auc": 0.797,
+    "pr_auc_average_precision": 0.4662,
+    "accuracy": 0.5609,
+    "recall": 0.8405,
+    "precision": 0.1836
+  },
+  "baseline_reference": {
+    "approved_target": "y",
+    "approval_timestamp": "2026-09-13T19:22:25+00:00",
+    "seed": 42,
+    "baseline_model": "DummyClassifier(strategy='prior')",
+    "train_positive_rate": 0.1127,
+    "validation": {
+      "pr_auc_average_precision": 0.1127,
+      "roc_auc": 0.5,
+      "accuracy_at_0.5": 0.8873056994818653
+    },
+    "note": "Baseline floor. A useful model must beat this PR-AUC and expected cost on validation.",
+    "split": {
+      "train": 28823,
+      "val": 6176,
+      "test": 6177
+    }
+  },
+  "note": "Test evaluated exactly once (G6). Threshold from validation only."
+}

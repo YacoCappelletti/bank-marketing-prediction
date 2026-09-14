@@ -1,0 +1,21 @@
+{
+  "question": "Which contact channel (cellular vs telephone) is associated with a higher term-deposit response rate?",
+  "title": "Contact-channel conversion",
+  "overall_response_rate": 11.27,
+  "by_channel": [
+    {
+      "channel": "cellular",
+      "contacts": 26144,
+      "subscribers": 3853,
+      "response_rate_pct": 14.74
+    },
+    {
+      "channel": "telephone",
+      "contacts": 15044,
+      "subscribers": 787,
+      "response_rate_pct": 5.23
+    }
+  ],
+  "cellular_over_telephone_lift": 2.817,
+  "note": "Descriptive association only; no model trained."
+}

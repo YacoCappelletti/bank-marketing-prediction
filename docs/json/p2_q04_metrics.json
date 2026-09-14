@@ -1,0 +1,91 @@
+{
+  "question": "How does prior contact history (previous outcome, contact recency, number of prior contacts) relate to the current term-deposit response rate?",
+  "title": "Prior-contact history",
+  "overall_response_rate": 11.27,
+  "response_by_poutcome": [
+    {
+      "segment": "success",
+      "contacts": 1373,
+      "subscribers": 894,
+      "response_rate_pct": 65.11
+    },
+    {
+      "segment": "failure",
+      "contacts": 4252,
+      "subscribers": 605,
+      "response_rate_pct": 14.23
+    },
+    {
+      "segment": "nonexistent",
+      "contacts": 35563,
+      "subscribers": 3141,
+      "response_rate_pct": 8.83
+    }
+  ],
+  "response_by_previously_contacted": [
+    {
+      "segment": "False",
+      "contacts": 39673,
+      "subscribers": 3673,
+      "response_rate_pct": 9.26
+    },
+    {
+      "segment": "True",
+      "contacts": 1515,
+      "subscribers": 967,
+      "response_rate_pct": 63.83
+    }
+  ],
+  "response_by_previous_count": [
+    {
+      "segment": "0.0",
+      "contacts": 35563,
+      "subscribers": 3141,
+      "response_rate_pct": 8.83
+    },
+    {
+      "segment": "1.0",
+      "contacts": 4561,
+      "subscribers": 967,
+      "response_rate_pct": 21.2
+    },
+    {
+      "segment": "2.0",
+      "contacts": 754,
+      "subscribers": 350,
+      "response_rate_pct": 46.42
+    },
+    {
+      "segment": "3.0",
+      "contacts": 216,
+      "subscribers": 128,
+      "response_rate_pct": 59.26
+    },
+    {
+      "segment": "4.0",
+      "contacts": 70,
+      "subscribers": 38,
+      "response_rate_pct": 54.29
+    },
+    {
+      "segment": "5.0",
+      "contacts": 18,
+      "subscribers": 13,
+      "response_rate_pct": 72.22
+    },
+    {
+      "segment": "6.0",
+      "contacts": 5,
+      "subscribers": 3,
+      "response_rate_pct": 60.0
+    },
+    {
+      "segment": "7.0",
+      "contacts": 1,
+      "subscribers": 0,
+      "response_rate_pct": 0.0
+    }
+  ],
+  "success_share_of_rows": 3.33,
+  "note": "Descriptive; `poutcome=success` is leakage-flagged for any modeling use (Phase 3/4 review)."
+}

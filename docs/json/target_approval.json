@@ -1,0 +1,18 @@
+{
+  "approved_target": "y",
+  "approved_problem_type": "binary_classification",
+  "approval_status": "approved",
+  "user_comments": "User approved target y (binary term-deposit subscription) as binary classification. Feature policy: EXCLUDE duration, poutcome, AND campaign (strict pre-call model). Cost matrix: keep the assumed false_negative:false_positive ratio of 20:1. Decisions captured via the Phase 3 approval gate.",
+  "approval_timestamp": "2026-09-13T19:22:25+00:00",
+  "proposal_reference": "docs/target_proposal.md",
+  "decisions": {
+    "excluded_features": [
+      "duration",
+      "poutcome",
+      "campaign"
+    ],
+    "cost_ratio_fn_fp": "20:1"
+  },
+  "recorded_by": "user (explicit approval); agent transcribed verbatim decision",
+  "governance": "Approval set by user response, not by agent initiative (G3). Phase 4 gate opened (G4)."
+}

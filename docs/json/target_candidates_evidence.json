@@ -1,0 +1,44 @@
+{
+  "y": {
+    "candidate": "y",
+    "problem_type_if_chosen": "binary_classification",
+    "description": "Term-deposit subscription on this contact (yes/no).",
+    "cardinality": 2,
+    "missing_count": 0,
+    "unknown_count": 0,
+    "minority_share_pct": 11.27,
+    "label_entropy_bits": 0.508,
+    "levels": {
+      "no": 36548,
+      "yes": 4640
+    }
+  },
+  "campaign": {
+    "candidate": "campaign",
+    "problem_type_if_chosen": "regression",
+    "description": "Number of contacts in the current campaign (effort target).",
+    "min": 1,
+    "max": 56,
+    "mean": 2.57,
+    "missing_count": 0,
+    "near_constant_zero": false
+  },
+  "previous": {
+    "candidate": "previous",
+    "problem_type_if_chosen": "regression",
+    "description": "Number of prior-campaign contacts.",
+    "min": 0,
+    "max": 7,
+    "missing_count": 0,
+    "zero_share_pct": 86.34
+  },
+  "duration": {
+    "candidate": "duration",
+    "problem_type_if_chosen": "regression",
+    "description": "Completed call length in seconds.",
+    "min": 0,
+    "max": 4918,
+    "missing_count": 0,
+    "correlation_with_response_y": 0.405
+  }
+}

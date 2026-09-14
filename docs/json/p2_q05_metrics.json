@@ -1,0 +1,42 @@
+{
+  "question": "How does the number of contacts within the current campaign relate to conversion, and how much outbound effort is consumed by repeated contacting?",
+  "title": "Campaign effort",
+  "overall_response_rate": 11.27,
+  "response_by_attempts": [
+    {
+      "attempts": "1",
+      "contacts": 17642,
+      "subscribers": 2300,
+      "response_rate_pct": 13.04
+    },
+    {
+      "attempts": "2",
+      "contacts": 10570,
+      "subscribers": 1211,
+      "response_rate_pct": 11.46
+    },
+    {
+      "attempts": "3",
+      "contacts": 5341,
+      "subscribers": 574,
+      "response_rate_pct": 10.75
+    },
+    {
+      "attempts": "4-5",
+      "contacts": 4250,
+      "subscribers": 369,
+      "response_rate_pct": 8.68
+    },
+    {
+      "attempts": "6+",
+      "contacts": 3385,
+      "subscribers": 186,
+      "response_rate_pct": 5.49
+    }
+  ],
+  "total_contacts": 105754,
+  "repeat_contact_share_of_all_contacts": 83.32,
+  "subscribers_total": 4640,
+  "contacts_per_subscriber": 22.79,
+  "note": "Descriptive efficiency metrics; no model trained."
+}

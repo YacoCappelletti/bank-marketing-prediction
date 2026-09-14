@@ -1,0 +1,18 @@
+{
+  "approved_target": "y",
+  "approval_timestamp": "2026-09-13T19:22:25+00:00",
+  "seed": 42,
+  "baseline_model": "DummyClassifier(strategy='prior')",
+  "train_positive_rate": 0.1127,
+  "validation": {
+    "pr_auc_average_precision": 0.1127,
+    "roc_auc": 0.5,
+    "accuracy_at_0.5": 0.8873056994818653
+  },
+  "note": "Baseline floor. A useful model must beat this PR-AUC and expected cost on validation.",
+  "split": {
+    "train": 28823,
+    "val": 6176,
+    "test": 6177
+  }
+}

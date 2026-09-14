@@ -1,0 +1,97 @@
+{
+  "phase": 2,
+  "dataset": "bank_data.csv",
+  "governance_note": "Descriptive business analysis only. No predictive model trained and no modeling target selected/ranked (G1).",
+  "overall_response_rate_pct": 11.27,
+  "insights": [
+    {
+      "id": "Q01",
+      "question": "Which contact channel (cellular vs telephone) is associated with a higher term-deposit response rate?",
+      "code": "scripts/p2_q01_channel_conversion.py",
+      "output": "docs/snippets/p2_q01_output.md",
+      "chart": "docs/images/p2_q01_chart.png",
+      "metrics_file": "docs/json/p2_q01_metrics.json",
+      "key_metrics": {
+        "cellular_response_pct": 14.74,
+        "telephone_response_pct": 5.23,
+        "cellular_lift_over_telephone": 2.82
+      },
+      "interpretation": "Cellular contacts convert at ~14.7% versus ~5.2% for telephone - a 2.8x lift on the same population. Channel is a decisive, directly controllable factor.",
+      "business_relevance": "Conversion per outbound contact is the core efficiency of the campaign; a 2.8x channel gap is immediate upside without new client acquisition cost.",
+      "recommended_action": "Shift outbound capacity toward cellular where the same client can be reached either way, and treat telephone as a fallback channel."
+    },
+    {
+      "id": "Q02",
+      "question": "How do macroeconomic conditions relate to the response rate?",
+      "code": "scripts/p2_q02_economic_conditions.py",
+      "output": "docs/snippets/p2_q02_output.md",
+      "chart": "docs/images/p2_q02_chart.png",
+      "metrics_file": "docs/json/p2_q02_metrics.json",
+      "key_metrics": {
+        "response_pct_euribor_0_1.5": 24.02,
+        "response_pct_euribor_1.5_2.5": 44.68,
+        "response_pct_euribor_4.5_5.1": 4.80,
+        "corr_euribor3m": -0.31,
+        "corr_nr_employed": -0.36,
+        "corr_emp_var_rate": -0.30
+      },
+      "interpretation": "Response is strongly and inversely related to the interest-rate and labor-market environment: low euribor windows convert at 24-45% while high-rate windows sit at ~4.8%. The macro indicators are the strongest descriptive drivers.",
+      "business_relevance": "Timing and sizing campaigns to favorable economic windows changes booked deposits per call dramatically - potentially the largest lever available.",
+      "recommended_action": "Concentrate pushy/high-volume waves in low-rate windows and run minimal maintenance effort in high-rate windows; feed the macro indicators into the predictive model."
+    },
+    {
+      "id": "Q03",
+      "question": "Which customer demographic segments respond best?",
+      "code": "scripts/p2_q03_customer_profile.py",
+      "output": "docs/snippets/p2_q03_output.md",
+      "chart": "docs/images/p2_q03_chart.png",
+      "metrics_file": "docs/json/p2_q03_metrics.json",
+      "key_metrics": {
+        "best_job_student_pct": 31.43,
+        "retired_pct": 25.23,
+        "age_65plus_pct": 46.85,
+        "age_under25_pct": 20.95,
+        "base_rate_pct": 11.27
+      },
+      "interpretation": "Several segments are 2-4x the 11.27% base rate: students (31.4%) and retirees (25.2%) by job, and the 65+ (46.9%) and under-25 (21.0%) bands by age. Middle-aged salaried segments underperform.",
+      "business_relevance": "Curating calling lists toward high-propensity segments raises conversion per agent-hour at no additional spend.",
+      "recommended_action": "Prioritize retirees, students, and the 65+/under-25 age bands in targeting while still modeling these jointly with the macro context."
+    },
+    {
+      "id": "Q04",
+      "question": "How does prior contact history relate to response?",
+      "code": "scripts/p2_q04_contact_history.py",
+      "output": "docs/snippets/p2_q04_output.md",
+      "chart": "docs/images/p2_q04_chart.png",
+      "metrics_file": "docs/json/p2_q04_metrics.json",
+      "key_metrics": {
+        "poutcome_success_pct": 65.11,
+        "poutcome_nonexistent_pct": 8.83,
+        "previously_contacted_pct": 63.83,
+        "never_contacted_pct": 9.26,
+        "never_contacted_share_pct": 96.33
+      },
+      "interpretation": "Warm history dominates: previously-contacted clients convert at ~64% versus ~9% for never-contacted, and poutcome='success' at ~65%. Yet 96% of rows are never-contacted cold leads, so the reachable-warm pool is small but extremely high value.",
+      "business_relevance": "Focusing re-contact budgets on warm leads is the single highest-yield targeting rule; the huge cold share means a good model is still needed to find the ~11% who convert cold.",
+      "recommended_action": "Guarantee warm/previously-contacted leads are worked first. Use history features in the model, but review poutcome for decision-time availability before production use (leakage flag)."
+    },
+    {
+      "id": "Q05",
+      "question": "How does contact intensity relate to conversion and outbound effort?",
+      "code": "scripts/p2_q05_campaign_effort.py",
+      "output": "docs/snippets/p2_q05_output.md",
+      "chart": "docs/images/p2_q05_chart.png",
+      "metrics_file": "docs/json/p2_q05_metrics.json",
+      "key_metrics": {
+        "response_pct_first_attempt": 13.04,
+        "response_pct_six_plus": 5.49,
+        "repeat_contact_share_of_all_contacts_pct": 83.32,
+        "contacts_per_subscriber": 22.79
+      },
+      "interpretation": "Marginal conversion declines with more attempts (13.0% on the first down to ~5.5% at 6+), while 83% of total contact volume is spent on repeat attempts, averaging ~23 contacts per subscriber under current policy.",
+      "business_relevance": "Effort is heavily consumed by low-yield repeat dialing; capping attempts and reallocating to higher-propensity targets improves campaign margin.",
+      "recommended_action": "Introduce attempt caps tied to predicted propensity and redirect saved capacity to high-probability cold leads identified by the model."
+    }
+  ],
+  "cross_insight_summary": "The dominant, mutually consistent story: response is driven primarily by WHEN the market is favorable (macro/rate environment, Q02) and WHO has warm history (Q04), then by channel (Q01) and segment (Q03), while current effort is inefficiently spread across repeat contacts (Q05). A propensity model plus band-based outreach rules can reallocate a fixed calling budget toward high-probability contacts."
+}

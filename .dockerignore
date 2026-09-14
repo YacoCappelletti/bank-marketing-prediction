@@ -1,0 +1,16 @@
+.git
+.gitignore
+__pycache__/
+**/__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+.ipynb_checkpoints/
+.env
+data/processed/*
+data/external/*
+docs/images/*.png
+*.md
+!README.md
+!PLAN.md

@@ -1,0 +1,68 @@
+{
+  "governance": {
+    "approval_file": "docs/json/target_approval.json",
+    "required_status": "approved",
+    "test_evaluation": "exactly_once (G6)",
+    "threshold_tuning": "validation_only (G6)"
+  },
+  "feature_policy": {
+    "source": "User decision at Phase 3 approval gate (2026-09-13)",
+    "target": "y",
+    "excluded_features": ["duration", "poutcome", "campaign"],
+    "exclusion_reason": "Strict pre-call model: duration is post-call leakage; poutcome (prior success) and campaign (attempt count that may include the outcome call) excluded per user choice to avoid any decision-time leakage.",
+    "pdays_sentinel": 999
+  },
+  "random_seed": 42,
+  "split": {
+    "train_size": 0.70,
+    "validation_size": 0.15,
+    "test_size": 0.15,
+    "strategy_note": "70/15/15. Stratified split for classification (or time-based if a relevant temporal field is justified in Phase 4)."
+  },
+  "cross_validation": {
+    "folds": 5,
+    "stratified": true
+  },
+  "metrics": {
+    "classification_primary": "average_precision",
+    "classification_secondary": ["roc_auc", "f1", "precision", "recall", "accuracy"],
+    "regression_primary": "neg_root_mean_squared_error",
+    "regression_secondary": ["neg_mean_absolute_error", "r2"]
+  },
+  "imbalance": {
+    "threshold_ratio": 0.5,
+    "mitigation": "class_weight=balanced",
+    "note": "Applied if minority/majority ratio < threshold_ratio."
+  },
+  "model_selection": {
+    "decision": "on_validation_set_only",
+    "threshold_optimization": "on_validation_set_only",
+    "test_evaluation": "exactly_once",
+    "governance_ref": "G6"
+  },
+  "candidates": {
+    "classification": [
+      "LogisticRegression",
+      "DecisionTreeClassifier",
+      "RandomForestClassifier",
+      "GradientBoostingClassifier"
+    ],
+    "regression": [
+      "LinearRegression",
+      "DecisionTreeRegressor",
+      "RandomForestRegressor",
+      "GradientBoostingRegressor"
+    ]
+  },
+  "feature_importance": {
+    "method": "shap",
+    "fallback": "permutation_importance_topk",
+    "top_k": 5
+  },
+  "hyperparameters": {
+    "LogisticRegression": {"C": [0.01, 0.1, 1, 10], "max_iter": [1000]},
+    "DecisionTreeClassifier": {"max_depth": [3, 5, 10, null], "min_samples_leaf": [10, 50]},
+    "RandomForestClassifier": {"n_estimators": [200], "max_depth": [10, 20, null], "min_samples_leaf": [5, 20]},
+    "GradientBoostingClassifier": {"n_estimators": [200], "learning_rate": [0.05, 0.1], "max_depth": [3, 5]}
+  }
+}
