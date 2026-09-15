@@ -14,10 +14,21 @@ audit to a deployed prediction stack — a **pre-call propensity model** for ter
 subscriptions, a FastAPI scoring service with per-prediction SHAP explanations, two
 Streamlit apps, and one-command Docker deployment.
 
-> **Highlights:** strict pre-call feature policy (no post-call leakage), a
-> cost-of-errors decision threshold tuned on validation only, a test set evaluated
-> exactly once, and a human approval gate that separates analysis from target
-> selection.
+## TL;DR
+
+- **What:** 41,188 phone-marketing contacts (Portuguese bank, 2008-2010) scored
+  **before** the call for term-deposit subscription propensity, with per-prediction
+  SHAP explanations and a business recommendation attached to every score.
+- **Result:** GradientBoostingClassifier with ROC-AUC **0.819** / PR-AUC **0.475** /
+  recall **0.861** at a cost-optimized threshold of **0.31** (20:1 FN:FP cost matrix,
+  threshold tuned on validation only, test evaluated exactly once).
+- **Stack:** FastAPI (validated inputs, `/v1/predict` with contributing factors),
+  two Streamlit apps (predictor + business dashboard), one-command Docker deployment.
+- **Run it:** `make setup && make test`, or `make docker-build && make docker-up`
+  (API :8000, predictor :8501, dashboard :8502).
+- **Differentiators:** strict pre-call feature policy (no post-call leakage), a human
+  approval gate that separates business analysis from target selection, and a test
+  set touched exactly once.
 
 ## Results
 
@@ -71,7 +82,11 @@ validates every input; logging never emits raw PII values.
 - **File:** `data/raw/bank_data.csv` (semicolon-separated, 41,188 rows x 21 columns)
 - **Content:** direct-marketing campaigns of a Portuguese banking institution,
   combining client attributes, campaign attributes, and social/economic indicators.
-- **Source:** UCI ML Repository - Bank Marketing dataset.
+- **Source:** [UCI ML Repository - Bank Marketing](https://archive.ics.uci.edu/dataset/222/bank+marketing),
+  exact variant `bank-additional-full.csv` (41,188 rows x 21 columns, May 2008 -
+  November 2010); Moro, Cortez & Silva (2014). Note: Kaggle mirrors of this dataset
+  often carry the older 17-column variant (`bank-full.csv`/`bank.csv`), which lacks
+  the macroeconomic indicators used by this model.
 - **Feature policy (strict pre-call model):** `duration` (post-call leakage),
   `poutcome`, and `campaign` are excluded per the user-approved feature policy —
   the model only uses information available *before* the call is made.
