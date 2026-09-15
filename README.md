@@ -58,25 +58,6 @@ risk band, recommended action, and per-prediction SHAP contributions (green push
 probability up, red pushes it down). The **dashboard** recomputes the five business
 questions live from interactive filters and closes with what/why/what-to-do actions.
 
-## Architecture
-
-```mermaid
-flowchart LR
-    A[data/raw/bank_data.csv] --> B[Phase 1 - Data audit\n+ data dictionary]
-    B --> C[Phase 2 - Business analysis\n5 quantified questions]
-    C --> D[Phase 3 - Target proposal\n+ human approval gate]
-    D -->|approval_status: approved| E[Phase 4 - Training\nbaseline > candidates > threshold]
-    E --> F[(models/\nfinal_model.joblib\npreprocessor.joblib\nexplainer.joblib\nmetadata)]
-    F --> G[FastAPI :8000\n/health /v1/predict /v1/model-card]
-    G --> H[Streamlit predictor :8501]
-    A --> I[Streamlit dashboard :8502]
-    B --> I
-```
-
-Three services, one Docker image. The API exposes `/health`, `/v1/predict` (probability,
-contributing factors, risk band, recommendation), and `/v1/model-card`. Pydantic
-validates every input; logging never emits raw PII values.
-
 ## Dataset
 
 - **File:** `data/raw/bank_data.csv` (semicolon-separated, 41,188 rows x 21 columns)
