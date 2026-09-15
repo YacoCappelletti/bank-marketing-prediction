@@ -7,12 +7,18 @@ from the API schemas so there is a single source of truth.
 """
 
 import os
+import sys
+from pathlib import Path
 from typing import get_args
 
 import altair as alt
 import pandas as pd
 import requests
 import streamlit as st
+
+# Allow `streamlit run apps/predict_app/app.py` from any CWD (Docker runs it as a
+# console script, which unlike `python -m` does not add the project root).
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from src.api.schemas import (
     ClientFeatures,
