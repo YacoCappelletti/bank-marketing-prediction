@@ -59,7 +59,6 @@ The two Streamlit apps should return HTTP 200 on `:8501` and `:8502`.
 | `API_PORT` | `8000` | api | Bind port. |
 | `API_URL` | `http://localhost:8000` | predict-app | `http://api:8000` inside Compose. |
 | `LOG_LEVEL` | `INFO` | api | Python logging level. |
-| `MODEL_PATH` / `PREPROCESSOR_PATH` / `EXPLAINER_PATH` | `/models/...` | reference | The service resolves artifacts relative to the project root; these are documented for external mounts. |
 | `DATA_PATH` | `data/raw/bank_data.csv` | dashboard | Dataset location. |
 
 Copy `.env.example` to `.env` to override defaults (never commit secrets).

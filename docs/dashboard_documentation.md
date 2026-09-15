@@ -17,27 +17,24 @@ no API dependency.
 ## What it shows
 
 ### KPIs (recomputed from the current filters)
-- **Contacts** in view, **Subscribers**, **Conversion %**, **Warm share** (previously
-  contacted), **Contacts per subscriber** (effort proxy).
+- **Contacts** in view, **Subscribers**, **Conversion %** (with a delta vs. the full
+  dataset), **Warm share** (previously contacted), **Contacts per subscriber** (effort
+  proxy, with an inverse-colored delta), plus a **CSV download** of the filtered rows.
 
 ### Interactive filters (sidebar)
 - Contact channel, contact month, Euribor band, and a "warm leads only" toggle. Every
   KPI and chart recomputes live on the filtered subset.
 
-### Charts (one block per Phase 2 question)
-1. **Q01 Channel** - conversion by contact channel.
-2. **Q02 Macro** - conversion by interest-rate band.
-3. **Q03 Segments** - conversion by job and by age band.
-4. **Q04 History** - conversion by prior-contact status and previous outcome
-   (with an explicit leakage note, since the production model excludes `poutcome`).
-5. **Q05 Effort** - conversion by number of contacts.
+### Tabbed views (one per Phase 2 question)
+1. **Overview** - Q01 conversion by channel and Q04 prior-contact status.
+2. **Segments** - Q03 conversion by job and by age band.
+3. **Macro** - Q02 conversion by interest-rate band.
+4. **Effort** - Q05 conversion by number of contacts (with the leakage note about
+   `poutcome`, excluded from the production model).
+5. **Actions** - the consolidated "what happened / why / what to do" panel.
 
-Each chart is paired with a "Why / Action" caption so the view is directly
-actionable, and a summary table underlies every chart.
-
-### What happened / Why / What to do
-A closing panel consolidates the operating recommendations (when to run, who to call,
-which channel, attempt caps, and the follow-on use of the predictive model).
+Every chart carries a dashed reference line at the overall response rate of the
+current filter, plus a summary table underneath.
 
 ## Data lineage
 

@@ -1,6 +1,6 @@
 """Phase 7 - Business dashboard (Streamlit).
 
-KPIs, interactive filters, and charts for the five selected business questions,
+KPIs, interactive filters, and tabs for the five selected business questions,
 answering: What happened? Why did it happen? What should the business do?
 Reads the raw dataset and recomputes every metric live from the filtered rows.
 """
@@ -8,6 +8,7 @@ Reads the raw dataset and recomputes every metric live from the filtered rows.
 import os
 from pathlib import Path
 
+import altair as alt
 import pandas as pd
 import streamlit as st
 
@@ -45,10 +46,42 @@ def rate_by(df, col):
     return g.sort_values("response_rate", ascending=False)
 
 
-def chart(df, col, title):
-    st.subheader(title)
+def conversion_chart(df, col, title, sort_by_rate=True):
     g = rate_by(df, col)
-    st.bar_chart(g.set_index("segment")["response_rate"] * 100)
+    y_order = (
+        list(g["segment"])
+        if sort_by_rate
+        else list(g.sort_values("segment")["segment"])
+    )
+    base = float(df["_resp"].mean())
+    chart = (
+        alt.Chart(g)
+        .mark_bar(cornerRadius=2)
+        .encode(
+            x=alt.X(
+                "response_rate:Q", title="Response rate", axis=alt.Axis(format="%")
+            ),
+            y=alt.Y("segment:N", sort=y_order, title=None),
+            color=alt.Color(
+                "response_rate:Q",
+                scale=alt.Scale(scheme="tealblues"),
+                legend=None,
+            ),
+            tooltip=[
+                alt.Tooltip("segment:N", title="Segment"),
+                alt.Tooltip("contacts:Q", title="Contacts", format=",.0f"),
+                alt.Tooltip("subscribers:Q", title="Subscribers", format=",.0f"),
+                alt.Tooltip("response_rate:Q", title="Response rate", format=".2%"),
+            ],
+        )
+        .properties(title=title, height=320)
+    )
+    rule = (
+        alt.Chart(pd.DataFrame({"x": [base]}))
+        .mark_rule(color="#c05621", strokeDash=[4, 4])
+        .encode(x=alt.X("x:Q", title=""))
+    )
+    st.altair_chart((chart + rule).resolve_scale(x="shared"), use_container_width=True)
     st.dataframe(
         g.assign(
             **{
@@ -62,11 +95,26 @@ def chart(df, col, title):
     )
 
 
+def kpis(f):
+    contacts = len(f)
+    subs = int(f["_resp"].sum())
+    conv = 100.0 * subs / contacts
+    warm_share = 100.0 * f["_previously_contacted"].mean()
+    total_attempts = int(f["campaign"].sum())
+    per_sub = total_attempts / subs if subs else float("inf")
+    return contacts, subs, conv, warm_share, per_sub
+
+
 def main():
     st.set_page_config(
         page_title="Bank Marketing Dashboard", page_icon="🏦", layout="wide"
     )
     st.title("🏦 Bank Marketing Campaign Dashboard")
+    st.caption(
+        "Direct-marketing performance of a Portuguese bank (2008-2010). "
+        "Every chart recomputes live from the filters - answering: what happened, "
+        "why, and what to do next."
+    )
 
     try:
         df = load_data()
@@ -100,70 +148,117 @@ def main():
         st.warning("No rows match the current filters.")
         return
 
-    contacts = len(f)
-    subs = int(f["_resp"].sum())
-    conv = 100.0 * subs / contacts
-    warm_share = 100.0 * f["_previously_contacted"].mean()
-    total_attempts = int(f["campaign"].sum())
-    per_sub = total_attempts / subs if subs else float("inf")
+    contacts, subs, conv, warm_share, per_sub = kpis(f)
+    dataset_conv = 100.0 * df["_resp"].mean()
 
-    st.subheader("KPIs")
+    conv_delta = conv - dataset_conv
+    per_sub_full = df["campaign"].sum() / df["_resp"].sum()
     c1, c2, c3, c4, c5 = st.columns(5)
     c1.metric("Contacts", f"{contacts:,}")
     c2.metric("Subscribers", f"{subs:,}")
-    c3.metric("Conversion", f"{conv:.2f}%")
+    c3.metric(
+        "Conversion",
+        f"{conv:.2f}%",
+        delta=f"{conv_delta:+.2f} pp vs full dataset"
+        if abs(conv_delta) > 1e-9
+        else None,
+    )
     c4.metric("Warm share", f"{warm_share:.1f}%")
-    c5.metric("Contacts / subscriber", f"{per_sub:.1f}")
-
-    st.divider()
-    st.caption(
-        f"Segment view reflects current filters ({contacts:,} contacts, {conv:.2f}% conversion)."
+    c5.metric(
+        "Contacts / subscriber",
+        f"{per_sub:.1f}",
+        delta=f"{per_sub - per_sub_full:+.1f}"
+        if abs(per_sub - per_sub_full) > 1e-9
+        else None,
+        delta_color="inverse",
     )
 
-    chart(f, "contact", "Q01 - Conversion by contact channel")
-    st.info(
-        "Why: cellular reaches engaged clients who answer; telephone converts far lower. "
-        "Action: shift outbound capacity to cellular where both channels can reach the client."
+    dl1, dl2 = st.columns([3, 1])
+    dl2.download_button(
+        "⬇️ Download filtered data (CSV)",
+        f.to_csv(index=False).encode("utf-8"),
+        file_name="filtered_campaign_data.csv",
+        mime="text/csv",
+        use_container_width=True,
     )
 
-    chart(f, "_euribor_band", "Q02 - Conversion by interest-rate band")
-    st.info(
-        "Why: deposits are more attractive in low-rate windows; high-rate periods suppress demand. "
-        "Action: size and time campaign waves to favorable macro windows."
+    tab_overview, tab_seg, tab_macro, tab_effort, tab_actions = st.tabs(
+        ["📌 Overview", "👥 Segments", "💹 Macro", "☎️ Effort", "✅ Actions"]
     )
 
-    chart(f, "job", "Q03 - Conversion by job segment")
-    chart(f, "_age_band", "Q03 - Conversion by age band")
-    st.info(
-        "Why: students, retirees, and the 65+/under-25 bands are far above base rate. "
-        "Action: curate calling lists toward high-propensity segments."
-    )
+    with tab_overview:
+        conversion_chart(f, "contact", "Q01 - Conversion by contact channel")
+        st.info(
+            "**Why:** cellular reaches engaged clients who answer; telephone converts far lower. "
+            "**Action:** shift outbound capacity to cellular where both channels can reach the client.",
+            icon="💡",
+        )
+        conversion_chart(
+            f, "_previously_contacted", "Q04 - Conversion by prior-contact status"
+        )
+        st.info(
+            "**Why:** warm leads convert several times higher than cold ones. "
+            "**Action:** work warm/previously-contacted leads first.",
+            icon="🔥",
+        )
 
-    chart(f, "_previously_contacted", "Q04 - Conversion by prior-contact status")
-    chart(f, "poutcome", "Q04 - Conversion by previous-campaign outcome")
-    st.warning(
-        "Note: poutcome/previously-contacted are strong but subject to the leakage review "
-        "from Phase 1-3; the production model excludes poutcome."
-    )
-    st.info(
-        "Why: warm leads convert several times higher than cold ones. "
-        "Action: work warm/previously-contacted leads first."
-    )
+    with tab_seg:
+        conversion_chart(f, "job", "Q03 - Conversion by job segment")
+        conversion_chart(f, "_age_band", "Q03 - Conversion by age band")
+        st.info(
+            "**Why:** students, retirees, and the 65+/under-25 bands are far above base rate. "
+            "**Action:** curate calling lists toward high-propensity segments.",
+            icon="👥",
+        )
 
-    chart(f, "campaign", "Q05 - Conversion by number of contacts")
-    st.info(
-        "Why: marginal conversion falls with each extra attempt while effort accumulates. "
-        "Action: cap attempts on low-propensity clients and reallocate capacity."
-    )
+    with tab_macro:
+        conversion_chart(f, "_euribor_band", "Q02 - Conversion by interest-rate band")
+        st.info(
+            "**Why:** deposits are more attractive in low-rate windows; high-rate periods suppress demand. "
+            "**Action:** size and time campaign waves to favorable macro windows.",
+            icon="💹",
+        )
 
-    st.divider()
-    st.subheader("What should the business do?")
-    st.markdown(
-        "- **When:** concentrate intensive waves in low-rate / weak-employment windows.\n"
-        "- **Who:** contact warm (previously-contacted) and high-propensity segments first.\n"
-        "- **How:** prefer cellular; cap repeat attempts on low-propensity clients.\n"
-        "- **Next:** use the predictive app / API to score and rank the cold majority."
-    )
+    with tab_effort:
+        conversion_chart(
+            f, "campaign", "Q05 - Conversion by number of contacts", sort_by_rate=False
+        )
+        st.info(
+            "**Why:** marginal conversion falls with each extra attempt while effort accumulates. "
+            "**Action:** cap attempts on low-propensity clients and reallocate capacity.",
+            icon="☎️",
+        )
+        st.warning(
+            "Note: `poutcome` is a strong descriptive signal but is excluded from the "
+            "production model after the leakage review; charts here are descriptive only.",
+            icon="⚠️",
+        )
+
+    with tab_actions:
+        st.subheader("What should the business do?")
+        col_a, col_b, col_c = st.columns(3)
+        with col_a:
+            st.markdown("#### 📌 What happened")
+            st.markdown(
+                f"- {contacts:,} contacts → {subs:,} subscribers ({conv:.2f}%).\n"
+                f"- Conversion varies widely by channel, segment, macro window, and history."
+            )
+        with col_b:
+            st.markdown("#### 🔍 Why it happened")
+            st.markdown(
+                "- Cellular vs telephone reachability gap (Q01).\n"
+                "- Macro windows: rate level drives deposit appeal (Q02).\n"
+                "- Segment mix: students/retirees/warm leads over-index (Q03, Q04).\n"
+                "- Effort waste: repeated dials convert little (Q05)."
+            )
+        with col_c:
+            st.markdown("#### 🎯 What to do")
+            st.markdown(
+                "- **When:** concentrate intensive waves in low-rate / weak-employment windows.\n"
+                "- **Who:** contact warm and high-propensity segments first.\n"
+                "- **How:** prefer cellular; cap repeat attempts on low-propensity clients.\n"
+                "- **Next:** score and rank the cold majority with the predictive app / API."
+            )
 
 
 if __name__ == "__main__":

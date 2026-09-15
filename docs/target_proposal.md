@@ -1,8 +1,8 @@
 # Target Variable Proposal - Phase 3
 
-> **This phase ends in a mandatory stop.** The proposal below requires your **explicit
-> approval** before any model is built. Approval is recorded only by you in
-> `docs/json/target_approval.json`; the agent cannot approve it (G3). Phase 4 cannot start
+> **This phase ends in a mandatory stop.** The proposal below requires explicit
+> approval before any model is built. Approval is recorded only by the project
+> stakeholder in `docs/json/target_approval.json` (G3). Phase 4 cannot start
 > until that file reads `approval_status: "approved"` (G4).
 
 ## Recommended target

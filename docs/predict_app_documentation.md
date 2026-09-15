@@ -14,18 +14,25 @@ Requires the prediction API to be running (`make run-api`, or the `api` Docker s
 
 ## What it does
 
-1. Presents a sidebar form with all 17 decision-time input fields (categorical
-   fields as dropdowns, numeric fields as sliders/number inputs with the dataset's
-   valid ranges). `pdays = 999` is the "never contacted" sentinel.
-2. Validates the inputs client-side before calling the API.
-3. `POST`s the observation to `{API_URL}/v1/predict`.
-4. Displays:
-   - **P(subscribe)** and the binary **decision** (yes/no) at the model threshold,
-   - the model **version**,
-   - a color-coded **risk band** and the matching **business recommendation**
-     (from `configs/business_rules.json`),
-   - the **top-5 contributing factors** as a bar chart of SHAP contributions, with
-     each factor mapped back to its original dataset field.
+1. Shows an **API status indicator** (sidebar) so the operator knows the backend is
+   reachable before entering data.
+2. Presents a three-column form with all 17 decision-time input fields (categorical
+   fields as dropdowns, numeric fields bounded to the schema and dataset ranges).
+   `pdays = 999` is the "never contacted" sentinel.
+3. Offers **client-archetype presets** (cold lead, warm lead, high-propensity
+   student/retiree) that pre-fill the form; every field stays editable. Enum lists
+   and numeric bounds are derived from the API's Pydantic schemas (single source of
+   truth).
+4. `POST`s the observation to `{API_URL}/v1/predict`.
+5. Displays:
+   - **P(subscribe)** with a probability bar and the binary **decision** at the model
+     threshold,
+   - the **risk band** (color-coded pill) and the matching **business recommendation**
+     (from `configs/business_rules.json`, aligned with the model's decision threshold),
+   - the model name and **version**,
+   - the **contributing factors** as a bar chart of SHAP contributions, aggregated by
+     original dataset field, colored by sign (green = pushes probability up,
+     red = pushes it down), with the detailed per-feature table underneath.
 
 ## Inputs not shown
 

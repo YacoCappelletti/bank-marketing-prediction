@@ -65,7 +65,7 @@ Outliers are largely genuine heavy-tail business quantities (long calls, many co
 
 ## 7. Response-style column balance (descriptive only)
 
-For completeness required by PLAN Section 6.1, the discrete yes/no-style columns are profiled below. **This is a factual distribution report, not a target proposal or ranking (G1).** Target selection happens in Phase 3.
+For completeness, the discrete yes/no-style columns are profiled below. **This is a factual distribution report, not a target proposal or ranking (G1).** Target selection happens in Phase 3.
 
 | Column | Level counts | Minority share |
 | --- | --- | --- |

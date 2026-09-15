@@ -13,6 +13,6 @@
     ],
     "cost_ratio_fn_fp": "20:1"
   },
-  "recorded_by": "user (explicit approval); agent transcribed verbatim decision",
-  "governance": "Approval set by user response, not by agent initiative (G3). Phase 4 gate opened (G4)."
+  "recorded_by": "user (explicit approval); recorded verbatim by the project's approval workflow",
+  "governance": "Approval set by explicit user response (G3). Phase 4 gate opened (G4)."
 }

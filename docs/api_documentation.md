@@ -77,7 +77,7 @@ Fields:
 - `prediction` / `predicted_class`: the binary decision at `decision_threshold`.
 - `probability`: P(subscribe).
 - `decision_threshold`: cost-optimized cut from validation (G6); shown so callers can reason about the cut.
-- `risk_band` / `recommendation`: from `configs/business_rules.json` bands keyed to `probability`.
+- `risk_band` / `recommendation`: from `configs/business_rules.json` bands keyed to `probability`. The low/medium band boundary equals `decision_threshold`, so `risk_band != "low"` is exactly equivalent to `prediction == 1` (the recommendation can never contradict the contact decision).
 - `contributing_factors`: top-5 SHAP features (positive = raises subscription likelihood), each mapped back to its original dataset field.
 
 **Errors**

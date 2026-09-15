@@ -1,85 +1,212 @@
 """Phase 6 - Predictive app (Streamlit).
 
-A form for one contact observation; scores it through the prediction API at
-API_URL and shows the probability, main contributing factors, risk band, and a
-business recommendation. Validates inputs before calling the API.
+A form for one campaign contact observation; scores it through the prediction API at
+API_URL and shows the probability, main contributing factors (SHAP, color by sign),
+risk band, and a business recommendation. Enum lists and numeric bounds are derived
+from the API schemas so there is a single source of truth.
 """
 
 import os
+from typing import get_args
 
+import altair as alt
 import pandas as pd
 import requests
 import streamlit as st
 
+from src.api.schemas import (
+    ClientFeatures,
+    CONTACT,
+    DOW,
+    EDUCATION,
+    JOB,
+    MARITAL,
+    MONTH,
+    YN,
+)
+
 API_URL = os.getenv("API_URL", "http://localhost:8000")
 PREDICT_ENDPOINT = f"{API_URL}/v1/predict"
 
-JOBS = [
-    "admin.",
-    "blue-collar",
-    "technician",
-    "services",
-    "management",
-    "retired",
-    "entrepreneur",
-    "self-employed",
-    "housemaid",
-    "unemployed",
-    "student",
-    "unknown",
-]
-MARITAL = ["married", "single", "divorced", "unknown"]
-EDUCATION = [
-    "illiterate",
-    "basic.4y",
-    "basic.6y",
-    "basic.9y",
-    "high.school",
-    "professional.course",
-    "university.degree",
-    "unknown",
-]
-YN = ["no", "yes", "unknown"]
-CONTACT = ["cellular", "telephone"]
-MONTHS = [
-    "jan",
-    "feb",
-    "mar",
-    "apr",
-    "may",
-    "jun",
-    "jul",
-    "aug",
-    "sep",
-    "oct",
-    "nov",
-    "dec",
-]
-DOW = ["mon", "tue", "wed", "thu", "fri"]
+JOBS = list(get_args(JOB))
+MARITALS = list(get_args(MARITAL))
+EDUCATIONS = list(get_args(EDUCATION))
+YNS = list(get_args(YN))
+CONTACTS = list(get_args(CONTACT))
+MONTHS = list(get_args(MONTH))
+# The dataset only covers working days, so weekend options are not offered.
+DOWS = ["mon", "tue", "wed", "thu", "fri"]
+
+
+def _bound(field_name, kind):
+    for meta in ClientFeatures.model_fields[field_name].metadata:
+        v = getattr(meta, kind, None)
+        if v is not None:
+            return v
+    return None
+
+
+AGE_MIN, AGE_MAX = _bound("age", "ge"), _bound("age", "le")
+PDAYS_SENTINEL = 999
+
+# Dataset-observed ranges for the macroeconomic sliders.
+MACRO = {
+    "emp.var.rate": (-3.4, 1.4, 1.1, 0.1, "Employment variation rate"),
+    "cons.price.idx": (92.2, 94.8, 93.994, 0.001, "Consumer price index"),
+    "cons.conf.idx": (-50.8, -26.9, -36.4, 0.1, "Consumer confidence index"),
+    "euribor3m": (0.634, 5.045, 4.857, 0.001, "Euribor 3-month rate"),
+    "nr.employed": (4963.6, 5228.1, 5191.0, 0.1, "Number of employed"),
+}
 
 BAND_COLORS = {"high": "red", "medium": "orange", "low": "green"}
 
+# Client archetypes: defaults used to pre-fill the form. Macro context is the
+# last observed wave in the dataset (high-rate window, May 2010-like).
+PRESETS = {
+    "Cold lead - typical client": {
+        "age": 38,
+        "job": "technician",
+        "marital": "married",
+        "education": "university.degree",
+        "default": "no",
+        "housing": "yes",
+        "loan": "no",
+        "contact": "cellular",
+        "month": "may",
+        "day_of_week": "thu",
+        "pdays": PDAYS_SENTINEL,
+        "previous": 0,
+    },
+    "Warm lead - previously contacted": {
+        "age": 31,
+        "job": "admin.",
+        "marital": "single",
+        "education": "high.school",
+        "default": "no",
+        "housing": "yes",
+        "loan": "no",
+        "contact": "cellular",
+        "month": "mar",
+        "day_of_week": "tue",
+        "pdays": 6,
+        "previous": 1,
+    },
+    "High propensity - student": {
+        "age": 22,
+        "job": "student",
+        "marital": "single",
+        "education": "high.school",
+        "default": "no",
+        "housing": "no",
+        "loan": "no",
+        "contact": "cellular",
+        "month": "oct",
+        "day_of_week": "thu",
+        "pdays": 999,
+        "previous": 0,
+    },
+    "High propensity - retired": {
+        "age": 68,
+        "job": "retired",
+        "marital": "married",
+        "education": "basic.4y",
+        "default": "no",
+        "housing": "no",
+        "loan": "no",
+        "contact": "cellular",
+        "month": "mar",
+        "day_of_week": "wed",
+        "pdays": 999,
+        "previous": 0,
+    },
+}
 
-def build_request():
-    st.sidebar.header("Model inputs")
-    age = st.sidebar.number_input("Age", 17, 120, 38)
-    job = st.sidebar.selectbox("Job", JOBS, index=JOBS.index("technician"))
-    marital = st.sidebar.selectbox("Marital status", MARITAL, index=0)
-    education = st.sidebar.selectbox("Education", EDUCATION, index=6)
-    default = st.sidebar.selectbox("Credit in default", YN, index=0)
-    housing = st.sidebar.selectbox("Housing loan", YN, index=1)
-    loan = st.sidebar.selectbox("Personal loan", YN, index=0)
-    contact = st.sidebar.selectbox("Contact channel", CONTACT, index=0)
-    month = st.sidebar.selectbox("Contact month", MONTHS, index=4)
-    dow = st.sidebar.selectbox("Day of week", DOW, index=3)
-    st.sidebar.caption("pdays = 999 means 'never contacted before'.")
-    pdays = st.sidebar.number_input("Days since prior contact (pdays)", 0, 999, 999)
-    previous = st.sidebar.number_input("Prior contacts (previous)", 0, 10, 0)
-    emp = st.sidebar.slider("emp.var.rate", -3.4, 1.4, 1.1, step=0.1)
-    cpi = st.sidebar.slider("cons.price.idx", 92.0, 94.8, 93.994, step=0.001)
-    cci = st.sidebar.slider("cons.conf.idx", -50.8, -26.9, -36.4, step=0.1)
-    eur = st.sidebar.slider("euribor3m", 0.6, 5.1, 4.857, step=0.001)
-    nre = st.sidebar.slider("nr.employed", 4960.0, 5230.0, 5191.0, step=0.1)
+
+def apply_preset():
+    name = st.session_state.get("preset")
+    if not name or name == "Custom":
+        return
+    for k, v in PRESETS[name].items():
+        st.session_state[k] = v
+    for k in MACRO:  # keep the macro context at its default wave
+        st.session_state[f"macro_{k}"] = MACRO[k][2]
+
+
+# Pre-fill the form with the "typical client" defaults on first load.
+for _k, _v in PRESETS["Cold lead - typical client"].items():
+    st.session_state.setdefault(_k, _v)
+for _k in MACRO:
+    st.session_state.setdefault(f"macro_{_k}", MACRO[_k][2])
+
+
+def macro_value(key):
+    lo, hi, default, step, _ = MACRO[key]
+    lo_s, hi_s = float(lo), float(hi)
+    default_s = min(max(float(default), lo_s), hi_s)
+    key = f"macro_{key}"
+    if key not in st.session_state:
+        st.session_state[key] = default_s
+    return st.session_state[key]
+
+
+def build_form():
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        st.selectbox(
+            "Client archetype (preset)",
+            ["Custom", *PRESETS],
+            key="preset",
+            on_change=apply_preset,
+            help="Pre-fills the form with a typical observation; then tweak any field.",
+        )
+        age = st.number_input(
+            f"Age ({AGE_MIN}-{AGE_MAX})",
+            AGE_MIN,
+            AGE_MAX,
+            key="age",
+            help="Training data is clipped to this range.",
+        )
+        job = st.selectbox("Job", JOBS, key="job")
+        marital = st.selectbox("Marital status", MARITALS, key="marital")
+        education = st.selectbox("Education", EDUCATIONS, key="education")
+    with c2:
+        default = st.selectbox("Credit in default", YNS, key="default")
+        housing = st.selectbox("Housing loan", YNS, key="housing")
+        loan = st.selectbox("Personal loan", YNS, key="loan")
+        contact = st.selectbox("Contact channel", CONTACTS, key="contact")
+        month = st.selectbox("Contact month", MONTHS, key="month")
+        dow = st.selectbox("Day of week", DOWS, key="day_of_week")
+    with c3:
+        pdays = st.number_input(
+            "Days since prior contact (pdays)",
+            0,
+            PDAYS_SENTINEL,
+            key="pdays",
+            help=f"{PDAYS_SENTINEL} = never contacted before this campaign.",
+        )
+        previous = st.number_input("Prior contacts (previous)", 0, 27, key="previous")
+        st.caption("Macroeconomic context at contact time (dataset range).")
+        emp = st.slider(
+            MACRO["emp.var.rate"][4],
+            *MACRO["emp.var.rate"][:4],
+            key="macro_emp.var.rate",
+        )
+        cpi = st.slider(
+            MACRO["cons.price.idx"][4],
+            *MACRO["cons.price.idx"][:4],
+            key="macro_cons.price.idx",
+        )
+        cci = st.slider(
+            MACRO["cons.conf.idx"][4],
+            *MACRO["cons.conf.idx"][:4],
+            key="macro_cons.conf.idx",
+        )
+        eur = st.slider(
+            MACRO["euribor3m"][4], *MACRO["euribor3m"][:4], key="macro_euribor3m"
+        )
+        nre = st.slider(
+            MACRO["nr.employed"][4], *MACRO["nr.employed"][:4], key="macro_nr.employed"
+        )
 
     return {
         "age": int(age),
@@ -102,13 +229,47 @@ def build_request():
     }
 
 
-def prevalidate(payload):
-    errors = []
-    if not (17 <= payload["age"] <= 120):
-        errors.append("age must be between 17 and 120.")
-    if payload["month"] not in MONTHS:
-        errors.append("Invalid month.")
-    return errors
+def shap_chart(factors: pd.DataFrame) -> alt.Chart:
+    # One-hot columns belong to the same original field; aggregate for readability.
+    df = (
+        factors.groupby("original_field", as_index=False)["contribution"]
+        .sum()
+        .assign(abs_c=lambda d: d["contribution"].abs())
+        .sort_values("abs_c", ascending=False)
+        .head(8)
+        .sort_values("abs_c")
+    )
+    return (
+        alt.Chart(df)
+        .mark_bar(cornerRadius=2)
+        .encode(
+            x=alt.X(
+                "contribution:Q",
+                title="SHAP contribution (pushes probability up / down)",
+            ),
+            y=alt.Y("original_field:N", sort="-x", title=None),
+            color=alt.condition(
+                "datum.contribution > 0",
+                alt.value("#38a169"),
+                alt.value("#e53e3e"),
+            ),
+            tooltip=[
+                alt.Tooltip("original_field:N", title="Field"),
+                alt.Tooltip("contribution:Q", title="Contribution", format=".4f"),
+            ],
+        )
+        .properties(height=300)
+    )
+
+
+def api_health():
+    try:
+        r = requests.get(f"{API_URL}/health", timeout=5)
+        if r.status_code == 200 and r.json().get("model_loaded"):
+            return r.json()
+    except requests.RequestException:
+        pass
+    return None
 
 
 def main():
@@ -117,29 +278,32 @@ def main():
     )
     st.title("📈 Term-Deposit Subscription Predictor")
     st.caption(
-        "Enter a campaign contact to score its subscription probability. "
-        "Powered by the prediction API."
+        "Score one campaign contact **before** the call: predicted subscription "
+        "probability, the factors behind it, and the recommended action."
     )
 
-    payload = build_request()
+    health = api_health()
+    sidebar = st.sidebar
+    sidebar.header("Model status")
+    if health:
+        sidebar.success(f"API online - model v{health['model_version']}")
+    else:
+        sidebar.error(f"API unreachable at {API_URL}. Start it with `make run-api`.")
 
-    errors = prevalidate(payload)
-    if errors:
-        for e in errors:
-            st.warning(e)
+    payload = build_form()
+
+    if not st.button("🔮 Predict", type="primary", use_container_width=True):
+        st.info("Set the client attributes on the left, then press **Predict**.")
         return
 
-    if not st.sidebar.button("Predict"):
-        st.info("Fill the inputs and press **Predict**.")
-        return
-
-    try:
-        resp = requests.post(PREDICT_ENDPOINT, json=payload, timeout=15)
-    except requests.RequestException:
-        st.error(
-            f"Cannot reach the prediction API at {API_URL}. Start it with `make run-api`."
-        )
-        return
+    with st.spinner("Scoring..."):
+        try:
+            resp = requests.post(PREDICT_ENDPOINT, json=payload, timeout=30)
+        except requests.RequestException:
+            st.error(
+                f"Cannot reach the prediction API at {API_URL}. Start it with `make run-api`."
+            )
+            return
 
     if resp.status_code == 422:
         st.error("The API rejected the input (422). Details:")
@@ -151,26 +315,35 @@ def main():
 
     r = resp.json()
     band = r["risk_band"]
+    prob = r["probability"]
 
-    c1, c2, c3 = st.columns(3)
-    c1.metric("P(subscribe)", f"{r['probability']:.3f}")
-    c2.metric("Decision", r["predicted_class"].upper())
-    c3.metric("Model", f"v{r['model_version']}")
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric("P(subscribe)", f"{prob:.1%}")
+    m2.metric("Decision", r["predicted_class"].upper())
+    m3.metric("Risk band", band.upper())
+    m4.metric("Model", f"v{r['model_version']}")
+    st.progress(
+        min(max(prob, 0.0), 1.0),
+        text=f"Probability {prob:.3f} (threshold {r['decision_threshold']})",
+    )
 
     st.markdown(
-        f"**Risk band:** :{BAND_COLORS.get(band, 'gray')}-background[{band.upper()}]  |  "
-        f"decision threshold = {r['decision_threshold']}"
+        f"**Risk band:** :{BAND_COLORS.get(band, 'gray')}-background[{band.upper()}]"
     )
-    st.info(f"Recommended action: {r['recommendation']}")
+    st.info(f"Recommended action: {r['recommendation']}", icon="🎯")
 
     st.subheader("Main contributing factors")
-    st.caption("SHAP contributions (positive increases subscription likelihood).")
-    df = pd.DataFrame(r["contributing_factors"])
-    if not df.empty:
-        df["abs"] = df["contribution"].abs()
-        df = df.sort_values("abs", ascending=False).drop(columns="abs")
-        st.bar_chart(df.set_index("original_field")["contribution"])
-        st.dataframe(df, use_container_width=True, hide_index=True)
+    st.caption(
+        "SHAP contributions for this prediction (positive = increases subscription likelihood)."
+    )
+    factors = pd.DataFrame(r["contributing_factors"])
+    if not factors.empty:
+        st.altair_chart(shap_chart(factors), use_container_width=True)
+        st.dataframe(
+            factors[["original_field", "feature", "contribution"]],
+            use_container_width=True,
+            hide_index=True,
+        )
 
     st.caption(
         f"Model: {r['model_name']} | target: {r['target']} | generated: {r['timestamp']}"
