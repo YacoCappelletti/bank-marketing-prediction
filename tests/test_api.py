@@ -75,6 +75,12 @@ def test_predict_prediction_matches_threshold(client):
     assert r["prediction"] == expected
 
 
+def test_predict_band_consistent_with_prediction(client):
+    r = client.post("/v1/predict", json=VALID_INPUT).json()
+    assert (r["risk_band"] != "low") == (r["prediction"] == 1)
+    assert (r["recommendation"].startswith("Deprioritize")) == (r["prediction"] == 0)
+
+
 def test_predict_invalid_enum_422(client):
     bad = dict(VALID_INPUT, job="astronaut")
     assert client.post("/v1/predict", json=bad).status_code == 422
@@ -82,6 +88,12 @@ def test_predict_invalid_enum_422(client):
 
 def test_predict_out_of_range_422(client):
     bad = dict(VALID_INPUT, age=250)
+    assert client.post("/v1/predict", json=bad).status_code == 422
+
+
+def test_predict_age_below_training_range_422(client):
+    """Age is rejected below 18, matching the clipped training range."""
+    bad = dict(VALID_INPUT, age=17)
     assert client.post("/v1/predict", json=bad).status_code == 422
 
 

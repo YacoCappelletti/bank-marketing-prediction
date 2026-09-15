@@ -44,7 +44,12 @@ class ClientFeatures(BaseModel):
     `pdays` uses 999 as the 'never contacted before' sentinel (recoded internally).
     """
 
-    age: int = Field(..., ge=17, le=120, description="Client age.")
+    age: int = Field(
+        ...,
+        ge=18,
+        le=95,
+        description="Client age (matching the training range; training data is clipped to [18, 95]).",
+    )
     job: JOB
     marital: MARITAL
     education: EDUCATION

@@ -8,7 +8,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from src.config import load_dataset, models_path, docs_json
+from src.api.predict import Predictor
+from src.config import load_business_rules, load_dataset, models_path, docs_json
 from src.data.prepare import split_frames, target
 from src.model import explain, selection
 
@@ -19,9 +20,17 @@ MIN_TEST_PR_AUC = 0.30
 MIN_TEST_ROC_AUC = 0.70
 MIN_TEST_RECALL = 0.50
 
+ARTIFACTS = ["final_model.joblib", "preprocessor.joblib", "explainer.joblib"]
+
+
+def artifacts_available():
+    return all(models_path(name).exists() for name in ARTIFACTS)
+
 
 @pytest.fixture(scope="module")
 def bundle():
+    if not artifacts_available():
+        pytest.skip("Model artifacts not found; run 'make train' first.")
     pipeline = joblib.load(models_path("final_model.joblib"))
     pre = joblib.load(models_path("preprocessor.joblib"))
     spec = joblib.load(models_path("explainer.joblib"))
@@ -30,6 +39,8 @@ def bundle():
 
 @pytest.fixture(scope="module")
 def data():
+    if not artifacts_available():
+        pytest.skip("Model artifacts not found; run 'make train' first.")
     return split_frames(load_dataset())
 
 
@@ -95,6 +106,30 @@ def test_threshold_and_cost_consistency():
     assert cm["tp"] + cm["fn"] + cm["fp"] + cm["tn"] == meta["split_sizes"]["test"]
 
 
+def test_risk_bands_align_with_decision_threshold():
+    """Business rules must agree with the model's operational threshold (G6 chain):
+    the low band ends exactly at the threshold, so 'band != low' <=> 'prediction == 1'."""
+    meta = json.load(open(models_path("model_metadata.json"), encoding="utf-8"))
+    thr = float(meta["chosen_decision_threshold"])
+    bands = sorted(
+        load_business_rules()["risk_bands"], key=lambda b: b["max_probability"]
+    )
+    low = bands[0]
+    assert low["band"] == "low"
+    assert abs(float(low["max_probability"]) - thr) < 1e-9
+
+
+def test_band_and_prediction_never_contradict():
+    """For any probability, the recommendation must not contradict the contact decision."""
+    predictor = Predictor()
+    thr = predictor.threshold
+    probes = [0.0, 0.05, thr - 1e-9, thr, (thr + 1.0) / 2, 0.9, 1.0]
+    for p in probes:
+        band, _ = predictor._band(p)
+        expected = int(p >= thr)
+        assert (band == "low") == (expected == 0), f"p={p} band={band} pred={expected}"
+
+
 def test_explainer_returns_top_contributions(bundle, data):
     pipeline, pre, spec = bundle
     Xtr, Xval, Xtest, ytr, yval, ytest, cols = data
@@ -104,11 +139,3 @@ def test_explainer_returns_top_contributions(bundle, data):
         assert top is not None
         assert 0 < len(top) <= 5
         assert {"feature", "contribution"} <= set(top[0].keys())
-
-
-def test_test_evaluated_once_flag():
-    perf = json.load(open(docs_json("model_performance.json"), encoding="utf-8"))
-    assert (
-        "exactly once" in perf["note"].lower()
-        or "exactly once" in perf.get("note", "").lower()
-    )

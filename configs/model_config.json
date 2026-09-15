@@ -31,8 +31,8 @@
   },
   "imbalance": {
     "threshold_ratio": 0.5,
-    "mitigation": "class_weight=balanced",
-    "note": "Applied if minority/majority ratio < threshold_ratio."
+    "mitigation": "class_weight=balanced for LogisticRegression/DecisionTree/RandomForest; balanced sample_weight for GradientBoosting (see src/model/models.py)",
+    "note": "Minority/majority ratio 0.1127 < 0.5, so mitigation applies. Implemented in Phase 4 training code; this block documents the policy."
   },
   "model_selection": {
     "decision": "on_validation_set_only",
@@ -47,22 +47,12 @@
       "RandomForestClassifier",
       "GradientBoostingClassifier"
     ],
-    "regression": [
-      "LinearRegression",
-      "DecisionTreeRegressor",
-      "RandomForestRegressor",
-      "GradientBoostingRegressor"
-    ]
+    "hyperparameter_policy": "Fixed candidate-level hyperparameters (documented in model_report.md); selection happens across candidates on validation, not via a hyperparameter search."
   },
   "feature_importance": {
-    "method": "shap",
+    "method": "permutation_importance (global, validation split)",
+    "local_explanations": "shap (TreeExplainer for tree models, linear contributions for LogisticRegression)",
     "fallback": "permutation_importance_topk",
     "top_k": 5
-  },
-  "hyperparameters": {
-    "LogisticRegression": {"C": [0.01, 0.1, 1, 10], "max_iter": [1000]},
-    "DecisionTreeClassifier": {"max_depth": [3, 5, 10, null], "min_samples_leaf": [10, 50]},
-    "RandomForestClassifier": {"n_estimators": [200], "max_depth": [10, 20, null], "min_samples_leaf": [5, 20]},
-    "GradientBoostingClassifier": {"n_estimators": [200], "learning_rate": [0.05, 0.1], "max_depth": [3, 5]}
   }
 }

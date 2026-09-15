@@ -2,17 +2,22 @@
 
 All scripts and services read paths, the random seed, and model/business
 configuration from the JSON files under /configs via this module.
-No hardcoded paths or seeds elsewhere (PLAN Section 9).
+No hardcoded paths or seeds elsewhere (single source of truth in /configs).
 """
 
 import json
+from functools import lru_cache
 from pathlib import Path
+
+import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIGS_DIR = ROOT / "configs"
 
 
+@lru_cache(maxsize=None)
 def _load(name):
+    """JSON configs are immutable at runtime; cache to avoid disk I/O per request."""
     path = CONFIGS_DIR / name
     with open(path, "r", encoding="utf-8") as fh:
         return json.load(fh)
@@ -86,8 +91,6 @@ def get_seed():
 
 def load_dataset():
     """Load the raw dataset using the configuration (separator, header)."""
-    import pandas as pd
-
     cfg = load_project_config()["dataset"]
     return pd.read_csv(
         raw_dataset_path(),

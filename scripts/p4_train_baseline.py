@@ -18,22 +18,20 @@ from src.model.preprocess import build_preprocessor
 from src.model import models, selection
 
 
-def fit_or_load_preprocessor(cats, nums, X_train):
-    path = models_path("preprocessor.joblib")
-    if path.exists():
-        return joblib.load(path)
+def fit_preprocessor(cats, nums, X_train):
+    """Always fit fresh from the current feature policy (no stale cached artifact)."""
     pre = build_preprocessor(nums, cats)
     pre.fit(X_train)
-    joblib.dump(pre, path)
+    joblib.dump(pre, models_path("preprocessor.joblib"))
     return pre
 
 
 def main():
     approval = assert_gate4()
     seed = get_seed()
-    Xtr, Xval, Xtest, ytr, yval, ytest, cols = split_frames(load_dataset_safe())
+    Xtr, Xval, Xtest, ytr, yval, ytest, cols = split_frames(load_dataset())
     cats, nums = categorical_and_numeric(cols)
-    pre = fit_or_load_preprocessor(cats, nums, Xtr)
+    pre = fit_preprocessor(cats, nums, Xtr)
 
     base = models.build_baseline()
     base.fit(pre.transform(Xtr), ytr)
@@ -61,12 +59,6 @@ def main():
         json.dump(metrics, fh, indent=2)
     print("Baseline:", json.dumps(metrics["validation"], indent=2))
     print("Wrote docs/json/baseline_metrics.json and models/preprocessor.joblib")
-
-
-def load_dataset_safe():
-    from src.config import load_dataset
-
-    return load_dataset()
 
 
 if __name__ == "__main__":

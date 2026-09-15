@@ -11,6 +11,9 @@ from sklearn.model_selection import train_test_split
 
 from src.config import load_dataset, load_model_config, load_target_approval
 
+# Derived features added by apply_engineering (serving must send the raw fields only).
+ENGINEERED_FEATURES = ("previously_contacted", "pdays_days")
+
 
 def assert_gate4():
     """G4: refuse to proceed unless the target is user-approved."""

@@ -21,12 +21,12 @@ data/processed/*
 data/external/*
 !data/external/.gitkeep
 
-# Model artifacts (reproducible via `make train`)
-models/*.joblib
-models/*.pkl
+# Model artifacts are versioned (< 0.5 MB total) so the API, tests, and the
+# Docker stack work immediately on a fresh clone. Regenerate via `make train`.
 
 # Outputs / caches
 .pytest_cache/
+.playwright-mcp/
 .ipynb_checkpoints/
 matplotlib/
 .shap_cache/

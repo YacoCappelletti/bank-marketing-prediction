@@ -4,7 +4,7 @@ Computes dataset-wide quality metrics and writes ``docs/data_quality_report.md``
 plus a basic distributions figure ``docs/images/p1_distributions.png``.
 
 Governance: G1 - findings are descriptive. Response-style columns are profiled
-for imbalance as required by PLAN Section 6.1, but no target is proposed or ranked.
+for imbalance, but no target is proposed or ranked.
 """
 
 import _bootstrap  # noqa: F401
@@ -252,7 +252,7 @@ def build_report(
     L.append("## 7. Response-style column balance (descriptive only)")
     L.append("")
     L.append(
-        "For completeness required by PLAN Section 6.1, the discrete yes/no-style columns "
+        "For completeness, the discrete yes/no-style columns "
         "are profiled below. **This is a factual distribution report, not a target proposal or "
         "ranking (G1).** Target selection happens in Phase 3."
     )

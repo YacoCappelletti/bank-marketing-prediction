@@ -1,6 +1,6 @@
 """Phase 3 - Target Variable Proposal.
 
-Mandatory inputs (PLAN Section 6.3): the data dictionary, the data quality report,
+Mandatory inputs: the data dictionary, the data quality report,
 the problem statement, and the Phase 2 business analysis. This script reads them,
 evaluates candidate target variables against the full criterion set, and writes the
 proposal + a PENDING approval file.

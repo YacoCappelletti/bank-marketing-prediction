@@ -48,14 +48,6 @@ def get_candidates():
     }
 
 
-def supports_class_weight(name):
-    return name in {
-        "LogisticRegression",
-        "DecisionTreeClassifier",
-        "RandomForestClassifier",
-    }
-
-
 def balanced_sample_weight(y):
     """Weights n/(k*count_class) per sample; used for GradientBoosting (no class_weight)."""
     y = np.asarray(y)
@@ -64,15 +56,3 @@ def balanced_sample_weight(y):
         c: len(y) / (len(classes) * cnt) for c, cnt in zip(classes, counts)
     }
     return np.array([weight_per_class[v] for v in y])
-
-
-def is_tree_ensemble(name):
-    return name in {
-        "DecisionTreeClassifier",
-        "RandomForestClassifier",
-        "GradientBoostingClassifier",
-    }
-
-
-def is_linear(name):
-    return name == "LogisticRegression"

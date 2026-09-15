@@ -1,8 +1,11 @@
 # Bank Marketing Prediction - Makefile
-# Auto-detect a project virtualenv; fall back to system python3.
+# All Python targets run through the project virtualenv (.venv).
+# `make setup` creates the venv and installs pinned requirements; every other
+# Python target depends on it, so deps are installed on first use.
+
 VENV := .venv
-PY  := $(shell test -x $(VENV)/bin/python && echo $(VENV)/bin/python || echo python3)
-PIP := $(PY) -m pip
+PY   := $(VENV)/bin/python
+PIP  := $(PY) -m pip
 
 .PHONY: help setup data-audit business-analysis target-proposal train test \
         run-api run-predict-app run-dashboard docker-build docker-up docker-down clean
@@ -17,48 +20,52 @@ help:
 	@echo "  make test               Run pytest on /tests"
 	@echo "  make run-api            Start FastAPI locally (uvicorn :8000)"
 	@echo "  make run-predict-app    Start the Streamlit predictive app (:8501)"
-	@echo "  make run-dashboard      Start the Streamlit business dashboard (:8502)"
+	@echo "  make run-dashboard      Start the Streamlit dashboard (:8502)"
 	@echo "  make docker-build       Build the Docker image"
 	@echo "  make docker-up          Start all services via docker-compose"
 	@echo "  make docker-down        Stop all services"
 
+setup: $(VENV)/.ready
+	@echo "Setup complete. Interpreter: $(PY)"
+
 $(VENV)/bin/python:
 	python3 -m venv $(VENV)
 
-setup: $(VENV)/bin/python
-	$(PIP) install --upgrade pip
+# Stamp refreshed when requirements change; guarantees deps are installed in the venv.
+$(VENV)/.ready: $(VENV)/bin/python requirements.txt
+	$(PY) -m pip install --upgrade pip
 	$(PIP) install -r requirements.txt
-	@echo "Setup complete. Interpreter: $(PY)"
+	touch $@
 
-data-audit:
+data-audit: $(VENV)/.ready
 	$(PY) scripts/p1_data_dictionary.py
 	$(PY) scripts/p1_data_audit.py
 
-business-analysis:
+business-analysis: $(VENV)/.ready
 	$(PY) scripts/p2_q01_channel_conversion.py
 	$(PY) scripts/p2_q02_economic_conditions.py
 	$(PY) scripts/p2_q03_customer_profile.py
 	$(PY) scripts/p2_q04_contact_history.py
 	$(PY) scripts/p2_q05_campaign_effort.py
 
-target-proposal:
+target-proposal: $(VENV)/.ready
 	$(PY) scripts/p3_target_proposal.py
 
-train:
+train: $(VENV)/.ready
 	$(PY) scripts/p4_train_baseline.py
 	$(PY) scripts/p4_train_candidate_models.py
 	$(PY) scripts/p4_evaluate_final_model.py
 
-test:
+test: $(VENV)/.ready
 	$(PY) -m pytest tests -v
 
-run-api:
+run-api: $(VENV)/.ready
 	$(PY) -m uvicorn src.api.main:app --host $${API_HOST:-0.0.0.0} --port $${API_PORT:-8000}
 
-run-predict-app:
+run-predict-app: $(VENV)/.ready
 	$(PY) -m streamlit run apps/predict_app/app.py --server.port 8501
 
-run-dashboard:
+run-dashboard: $(VENV)/.ready
 	$(PY) -m streamlit run apps/dashboard/app.py --server.port 8502
 
 docker-build:
@@ -71,5 +78,5 @@ docker-down:
 	docker compose down
 
 clean:
-	rm -rf __pycache__ .pytest_cache
-	find . -type d -name __pycache__ -exec rm -rf {} +
+	rm -rf .pytest_cache
+	find . -type d -name __pycache__ -not -path "./.venv/*" -exec rm -rf {} +

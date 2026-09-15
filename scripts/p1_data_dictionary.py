@@ -2,7 +2,7 @@
 
 Profiles every column of the raw dataset and merges the computed statistics with
 the curated semantic metadata in ``src/data/columns.py``. Emits both a JSON and a
-Markdown data dictionary following the schema in PLAN Section 6.1.
+Markdown data dictionary with per-column schema, PII, temporal and leakage flags.
 
 Governance: G1 - the ``candidate_target_phase3`` value is a factual flag only.
 No target is selected, ranked, or proposed here.

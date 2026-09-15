@@ -3,7 +3,7 @@
   "status": "active",
   "target_approved": true,
   "approved_target": "y",
-  "governance_note": "Target approved by the user in Phase 3 (docs/json/target_approval.json, 2026-09-13). Bands are keyed to the per-client P(y=yes) probability; the final decision threshold is tuned on validation in Phase 4 against the cost matrix below. Consumed in Phases 4 and 5.",
+  "governance_note": "Target approved by the user in Phase 3 (docs/json/target_approval.json, 2026-09-13). Bands are keyed to the per-client P(y=yes) probability. The low/medium boundary is the Phase 4 cost-optimal decision threshold (0.31, tuned on validation only against the cost matrix below), so the recommendation logic and the contact/no-contact decision never contradict each other: a client is predicted 'subscribe' exactly when the band is medium or high. Bands are half-open intervals [min, max); the last band is [min, 1.0]. Consumed in Phase 5 serving.",
   "problem_type": "classification",
   "target_dependency": "Interpretation of `probability` assumes the Phase 3 approved target is the binary term-deposit response. If a different target is approved, these bands must be re-derived.",
   "base_rate_pct": 11.27,
@@ -11,16 +11,16 @@
     {
       "band": "low",
       "min_probability": 0.0,
-      "max_probability": 0.20,
+      "max_probability": 0.31,
       "recommendation": "Deprioritize for active outreach this wave; no personalized push. Candidate for self-serve/digital channels only.",
-      "justification": "Below ~1.8x the 11.27% base rate; contacting these consumes the low-yield repeat-dialing effort flagged in Q05 (5.5% conversion at 6+ attempts)."
+      "justification": "Below the cost-optimal contact threshold (0.31): at the 20:1 FN:FP cost matrix, calling these clients wastes more effort than the marginal conversions justify. Consistent with the low-yield repeat-dialing flagged in Q05 (5.5% conversion at 6+ attempts)."
     },
     {
       "band": "medium",
-      "min_probability": 0.20,
+      "min_probability": 0.31,
       "max_probability": 0.50,
       "recommendation": "Include in the standard cellular campaign with up to two attempts.",
-      "justification": "Roughly the high-segment band from Q03 (students 31%, retirees 25%, cellular 14.7%); worth contacting via the preferred channel (Q01) but not premium capacity."
+      "justification": "At or above the contact threshold (positive decision) but below premium-priority level; roughly the high-segment band from Q03 (students 31%, retirees 25%, cellular 14.7%)."
     },
     {
       "band": "high",

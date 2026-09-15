@@ -73,14 +73,14 @@ def build_explainer(pipeline, X_train, model_name, seed, sample_rows=200):
     return spec
 
 
-def explain(spec, estimator, Xt):
+def explain(spec, estimator, Xt, explainer=None):
     """Contribution matrix (positive class) for transformed rows Xt."""
     kind = spec["kind"]
     Xarr = Xt.toarray() if hasattr(Xt, "toarray") else np.asarray(Xt)
 
     if kind == "tree":
         # tree_path_dependent mode: exact for tree ensembles, no masker/subsampling warning
-        expl = shap.TreeExplainer(estimator)
+        expl = explainer or shap.TreeExplainer(estimator)
         vals = expl.shap_values(Xarr)
         if isinstance(vals, (list, tuple)):
             vals = vals[-1]
@@ -93,11 +93,11 @@ def explain(spec, estimator, Xt):
     return None
 
 
-def top_contributions(spec, estimator, Xt_row, k=None):
+def top_contributions(spec, estimator, Xt_row, k=None, explainer=None):
     """Return top-k (feature, contribution) for a single transformed row."""
     if k is None:
         k = int(load_model_config()["feature_importance"]["top_k"])
-    contrib = explain(spec, estimator, Xt_row)
+    contrib = explain(spec, estimator, Xt_row, explainer=explainer)
     if contrib is None:
         return None
     row = np.asarray(contrib).reshape(-1)
