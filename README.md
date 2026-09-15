@@ -84,9 +84,11 @@ validates every input; logging never emits raw PII values.
   combining client attributes, campaign attributes, and social/economic indicators.
 - **Source:** [UCI ML Repository - Bank Marketing](https://archive.ics.uci.edu/dataset/222/bank+marketing),
   exact variant `bank-additional-full.csv` (41,188 rows x 21 columns, May 2008 -
-  November 2010); Moro, Cortez & Silva (2014). Note: Kaggle mirrors of this dataset
-  often carry the older 17-column variant (`bank-full.csv`/`bank.csv`), which lacks
-  the macroeconomic indicators used by this model.
+  November 2010); Moro, Cortez & Silva (2014).
+- **Kaggle:** [Bank Marketing Dataset](https://www.kaggle.com/datasets/janiobachmann/bank-marketing-dataset)
+  — quick-access copy of the classic variant. Note: it carries the older
+  17-column data (`bank.csv`), which lacks the macroeconomic indicators used by
+  this model; this project trains on the 21-column UCI variant.
 - **Feature policy (strict pre-call model):** `duration` (post-call leakage),
   `poutcome`, and `campaign` are excluded per the user-approved feature policy —
   the model only uses information available *before* the call is made.
